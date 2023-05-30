@@ -37,6 +37,7 @@ async function bootstrap() {
     .setDescription('The students management API')
     .setVersion('0.0.1')
     .addServer('https://code.nezumi.asia/proxy/4100/')
+    .addServer('https://fine-deer-attire.cyclic.app/')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
