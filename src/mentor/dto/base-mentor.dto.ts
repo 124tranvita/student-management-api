@@ -1,44 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsEmail,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
-export class BaseClassDto {
+export class BaseMentorDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
-  @MaxLength(32)
+  @MaxLength(12)
   @ApiProperty({
-    description: 'Classroom name',
+    description: 'Mentor name',
     type: String,
   })
-  className: string;
+  mentorName: string;
 
-  @IsOptional()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(128)
+  @IsEmail()
+  @IsNotEmpty()
   @ApiProperty({
-    description: 'Classroom description',
+    description: 'Mentor email',
     type: String,
+    format: 'email',
   })
-  classDescription?: string;
+  mentorEmail: string;
 
   @IsNotEmpty()
   @IsArray()
   @ApiProperty({
-    description: 'Classroom programming languages',
+    description: 'Mentor programming languages',
     type: Array,
   })
-  classLanguage: string[];
+  mentorLanguage: string[];
 
   @ApiProperty({
-    description: 'Classroom created date',
+    description: 'Mentor created date',
     type: Date,
   })
   createdAt: Date;

@@ -24,7 +24,7 @@ export class ClassService {
 
   /** Get classroom */
   async findOne(id: Types.ObjectId): Promise<Class> {
-    return await this.model.findById(id).exec();
+    return await this.model.findById(id).populate({ path: 'members' }).exec();
   }
 
   /** Update classroom information */

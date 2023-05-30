@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ClassModule } from './class/class.module';
+import { MentorModule } from './mentor/mentor.module';
+import { StudentModule } from './student/student.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { ClassModule } from './class/class.module';
       useUnifiedTopology: true,
     }),
     ClassModule,
+    MentorModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
