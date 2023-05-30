@@ -10,5 +10,6 @@ import { Mentor, MentorSchema } from './schemas/mentor.schema';
   imports: [
     MongooseModule.forFeature([{ name: Mentor.name, schema: MentorSchema }]),
   ],
+  exports: [MentorService],
 })
 export class MentorModule {}

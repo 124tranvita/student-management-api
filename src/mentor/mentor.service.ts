@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { MentorDocument, Mentor } from './schemas/mentor.schema';
 import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
@@ -11,8 +12,12 @@ export class MentorService {
 
   /** Create new mentor */
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
+    // Hash password
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(createMentorDto.password, salt);
     return await new this.model({
       ...createMentorDto,
+      password: hashPassword,
       createdAt: new Date(),
     }).save();
   }
@@ -34,7 +39,10 @@ export class MentorService {
 
   /** Get mentor by email */
   async findByEmail(email: string): Promise<MentorDocument> {
-    return await this.model.findOne({ email }).exec();
+    return await this.model
+      .findOne({ mentorEmail: email })
+      .select('+password')
+      .exec();
   }
 
   /** Update mentor info */
