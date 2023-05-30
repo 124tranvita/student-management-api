@@ -10,10 +10,13 @@ import { StudentModule } from './student/student.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.DATABASE, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }),
+    MongooseModule.forRoot(
+      process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD),
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    ),
     ClassModule,
     MentorModule,
     StudentModule,
