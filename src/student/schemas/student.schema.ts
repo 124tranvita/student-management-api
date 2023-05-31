@@ -6,7 +6,12 @@ import { Mentor } from 'src/mentor/schemas/mentor.schema';
 
 export type StudentDocument = HydratedDocument<Student>;
 
-@Schema()
+@Schema({
+  toJSON: {
+    getters: true,
+    virtuals: true,
+  },
+})
 export class Student {
   @Prop({
     required: true,
@@ -18,22 +23,22 @@ export class Student {
   @Prop({
     required: true,
   })
-  studentName: string;
+  name: string;
 
   @Prop()
-  studentDoB: Date;
+  doB: Date;
 
   @Prop()
-  studentAddress: string;
+  address: string;
 
   @Prop({
     required: true,
     default: '0',
   })
-  studentGender: string;
+  gender: string;
 
   @Prop()
-  studentLanguage: string[];
+  languages: string[];
 
   @Prop({
     required: true,
@@ -42,14 +47,19 @@ export class Student {
   status: string;
 
   @Prop({
-    default: 'defaut-profile.jpg',
+    default:
+      'https://www.les-soins-infirmiers.fr/wp-content/uploads/2018/04/default-avatar-woman.png',
   })
   avatar: string;
 
   // Student belong more than one classroom
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true })
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Class',
+    required: true,
+  })
   @Type(() => Class)
-  classrooms: Class[];
+  classes: Class[];
 
   // Student belong only one mentor
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor', required: true })
@@ -57,4 +67,12 @@ export class Student {
   mentor: Mentor;
 }
 
-export const StudentSchema = SchemaFactory.createForClass(Student);
+const StudentSchema = SchemaFactory.createForClass(Student);
+
+StudentSchema.virtual('classroom', {
+  ref: 'Class',
+  foreignField: 'students',
+  localField: '_id',
+});
+
+export { StudentSchema };

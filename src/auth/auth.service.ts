@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     // Step 3: Generate a JWT contianing the mentor's ID and return it
-    const tokens = await this.getTokens(mentor._id, mentor.mentorEmail);
+    const tokens = await this.getTokens(mentor._id, mentor.email);
     await this.updateRefreshToken(mentor._id, tokens.refreshToken);
 
     return tokens;
@@ -128,7 +128,7 @@ export class AuthService {
     }
 
     // Step 3: Generate a tokens contianing the mentor's ID
-    const tokens = await this.getTokens(mentor._id, mentor.mentorEmail);
+    const tokens = await this.getTokens(mentor._id, mentor.email);
 
     // Step 4: Update the new Refresh token for mentor
     await this.updateRefreshToken(mentor._id, tokens.refreshToken);

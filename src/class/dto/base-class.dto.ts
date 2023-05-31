@@ -17,7 +17,7 @@ export class BaseClassDto {
     description: 'Classroom name',
     type: String,
   })
-  className: string;
+  name: string;
 
   @IsOptional()
   @IsString()
@@ -27,7 +27,7 @@ export class BaseClassDto {
     description: 'Classroom description',
     type: String,
   })
-  classDescription?: string;
+  description?: string;
 
   @IsNotEmpty()
   @IsArray()
@@ -35,7 +35,7 @@ export class BaseClassDto {
     description: 'Classroom programming languages',
     type: Array,
   })
-  classLanguage: string[];
+  languages: string[];
 
   @ApiProperty({
     description: 'Classroom created date',

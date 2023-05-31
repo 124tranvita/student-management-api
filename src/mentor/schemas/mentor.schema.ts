@@ -17,18 +17,18 @@ export class Mentor {
     unique: true,
     index: true,
   })
-  mentorEmail: string;
+  email: string;
 
   @Prop({
     required: true,
   })
-  mentorName: string;
+  name: string;
 
   @Prop({
     required: true,
     type: [String],
   })
-  mentorLanguage: string[];
+  languages: string[];
 
   @Prop({
     required: true,
@@ -45,6 +45,12 @@ export class Mentor {
     default: 'Active',
   })
   status: string;
+
+  @Prop({
+    default:
+      'https://e7.pngegg.com/pngimages/348/800/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child.png',
+  })
+  avatar: string;
 
   @Prop()
   refreshToken: string;

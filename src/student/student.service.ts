@@ -24,7 +24,17 @@ export class StudentService {
 
   /** Get student */
   async findOne(id: Types.ObjectId): Promise<Student> {
-    return await this.model.findById(id).exec();
+    return await this.model
+      .findById(id)
+      .populate({
+        path: 'classroom',
+        options: {
+          select: {
+            name: 1,
+          },
+        },
+      })
+      .exec();
   }
 
   /** Update student information */
