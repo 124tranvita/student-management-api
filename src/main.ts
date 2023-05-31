@@ -1,15 +1,22 @@
+import helmet from 'helmet';
+import * as cookieParser from 'cookie-parser';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   BadRequestException,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
+import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './all-exceptions/all-exceptions.filter';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  /** Security middleware */
+  app.use(helmet());
+  app.enableCors();
+  app.use(cookieParser());
 
   app.setGlobalPrefix('/api/v1');
 

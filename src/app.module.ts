@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { ClassModule } from './class/class.module';
 import { MentorModule } from './mentor/mentor.module';
 import { StudentModule } from './student/student.module';
@@ -18,6 +19,10 @@ import { AuthModule } from './auth/auth.module';
         useUnifiedTopology: true,
       },
     ),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ClassModule,
     MentorModule,
     StudentModule,

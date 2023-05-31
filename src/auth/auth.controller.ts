@@ -5,11 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { Request as RequestType } from 'express';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SigninDto } from './dto/signin.dto';
 import { AuthEntity } from './entity/auth.entity';
@@ -29,13 +29,13 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Get('profile')
-  getProfile(@Request() req: RequestType) {
+  getProfile(@Req() req: Request) {
     return req.user;
   }
 
   @UseGuards(AccessTokenGuard)
   @Get('logout')
-  logout(@Request() req: RequestType) {
+  logout(@Req() req: Request) {
     console.log({ user: req.user });
     this.authService.logout(req.user['sub']);
   }
@@ -43,7 +43,7 @@ export class AuthController {
   /** Refreshing the token */
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
-  refreshTokens(@Request() req: RequestType) {
+  refreshTokens(@Req() req: Request) {
     const mentorId = req.user['sub'];
     const refreshToken = req.user['refreshToken'];
     return this.authService.refreshTokens(mentorId, refreshToken);
