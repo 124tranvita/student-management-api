@@ -18,20 +18,23 @@ export class Class {
     unique: true,
     index: true,
   })
-  className: string;
+  name: string;
 
   @Prop()
-  classDescription: string;
+  description: string;
 
   @Prop({
     required: true,
   })
-  classLanguage: string[];
+  languages: string[];
 
   @Prop({
     required: true,
   })
   createdAt: Date;
+
+  @Prop()
+  image: string;
 
   // Class belong one mentor
   @Prop({
@@ -44,18 +47,18 @@ export class Class {
 
   // Classroom can have more than one students
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: 'Student',
   })
   @Type(() => Student)
-  students: Student;
+  students: Student[];
 }
 
 const ClassSchema = SchemaFactory.createForClass(Class);
 
 ClassSchema.virtual('members', {
   ref: 'Student',
-  foreignField: 'classrooms',
+  foreignField: 'classes',
   localField: '_id',
 });
 

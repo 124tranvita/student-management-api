@@ -39,10 +39,7 @@ export class MentorService {
 
   /** Get mentor by email */
   async findByEmail(email: string): Promise<MentorDocument> {
-    return await this.model
-      .findOne({ mentorEmail: email })
-      .select('+password')
-      .exec();
+    return await this.model.findOne({ email }).select('+password').exec();
   }
 
   /** Update mentor info */

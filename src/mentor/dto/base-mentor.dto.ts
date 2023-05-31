@@ -17,7 +17,7 @@ export class BaseMentorDto {
     description: 'Mentor name',
     type: String,
   })
-  mentorName: string;
+  name: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -26,7 +26,7 @@ export class BaseMentorDto {
     type: String,
     format: 'email',
   })
-  mentorEmail: string;
+  email: string;
 
   @IsNotEmpty()
   @IsArray()
@@ -34,7 +34,7 @@ export class BaseMentorDto {
     description: 'Mentor programming languages',
     type: Array,
   })
-  mentorLanguage: string[];
+  languages: string[];
 
   @ApiProperty({
     description: 'Mentor created date',

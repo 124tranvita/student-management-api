@@ -1,16 +1,16 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { BaseStudentDto } from './base-student.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 
 export class CreateStudentDto extends BaseStudentDto {
   @IsNotEmpty()
-  @IsString()
+  @IsArray()
   @ApiProperty({
     description: 'Student classroom',
     type: Array,
   })
-  classrooms: Types.ObjectId[];
+  classes: Types.ObjectId[];
 
   @IsNotEmpty()
   @IsString()

@@ -9,7 +9,7 @@ export class UpdateStudentDto extends PartialType(BaseStudentDto) {
     description: 'Student known programming languages',
     type: Array,
   })
-  studentLanguage?: string[];
+  language?: string[];
 
   @IsOptional()
   @IsString()

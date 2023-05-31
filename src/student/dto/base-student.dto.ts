@@ -26,7 +26,7 @@ export class BaseStudentDto {
     description: 'Student name',
     type: String,
   })
-  studentName: string;
+  name: string;
 
   @IsNotEmpty()
   @IsDateString()
@@ -34,7 +34,7 @@ export class BaseStudentDto {
     description: 'Student birthday',
     type: Date,
   })
-  studentDoB: Date;
+  doB: Date;
 
   @IsNotEmpty()
   @IsString()
@@ -42,7 +42,7 @@ export class BaseStudentDto {
     description: 'Student name',
     type: String,
   })
-  studentAddress: string;
+  address: string;
 
   @IsString()
   @IsNotEmpty()
@@ -52,5 +52,5 @@ export class BaseStudentDto {
     enum: ['0', '1'],
     default: '0',
   })
-  studentGender: string;
+  gender: string;
 }
