@@ -49,6 +49,7 @@ export class StudentController {
     @Param('id') id: Types.ObjectId,
     @Body() updateStudentDto: UpdateStudentDto,
   ) {
+    console.log({ updateStudentDto });
     const student = await this.service.update(id, updateStudentDto);
 
     // If no student was found
