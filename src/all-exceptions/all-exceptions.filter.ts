@@ -3,7 +3,6 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
@@ -16,12 +15,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     let message: string | object = '';
     let statusCode = 0;
-
-    /** Get error status code */
-    // const httpStatus =
-    //   exception instanceof HttpException
-    //     ? exception.getStatus()
-    //     : HttpStatus.INTERNAL_SERVER_ERROR;
 
     /** Get error message */
     if (exception instanceof HttpException) {
