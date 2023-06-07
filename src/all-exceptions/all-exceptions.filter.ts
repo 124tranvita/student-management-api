@@ -15,24 +15,27 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     let message: string | object = '';
+    let statusCode = 0;
 
     /** Get error status code */
-    const httpStatus =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    // const httpStatus =
+    //   exception instanceof HttpException
+    //     ? exception.getStatus()
+    //     : HttpStatus.INTERNAL_SERVER_ERROR;
 
     /** Get error message */
     if (exception instanceof HttpException) {
       /** Handle error from Http */
       const error = Object.assign(exception);
       message = error.response.message;
+      statusCode = error.response.statusCode;
     } else if (exception instanceof Error) {
       /** Handle error from internal */
       const error = Object.assign(exception);
 
       switch (error.code) {
         case 11000:
+          statusCode = 400;
           message = `Duplicate field value ${JSON.stringify(
             error.keyValue,
           ).replace(/"/g, '')}. Please use another value!`;
@@ -50,12 +53,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     /** Exception response body */
     const responseBody = {
-      statusCode: httpStatus,
+      statusCode: statusCode,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message,
     };
 
-    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+    httpAdapter.reply(ctx.getResponse(), responseBody, statusCode);
   }
 }
