@@ -86,7 +86,7 @@ export class ClassController {
   /** Delete classroom */
   @Delete(':id')
   @ApiOkResponse()
-  @HttpCode(204)
+  @HttpCode(200)
   async delete(@Param('id') id: Types.ObjectId) {
     const classroom = await this.service.delete(id);
 
