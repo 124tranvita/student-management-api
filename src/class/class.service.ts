@@ -65,6 +65,6 @@ export class ClassService {
 
   /** Delete classroom */
   async delete(id: Types.ObjectId): Promise<Class> {
-    return await this.model.findByIdAndDelete(id).exec();
+    return await this.model.findByIdAndDelete(id, { new: true }).exec();
   }
 }
