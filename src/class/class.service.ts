@@ -48,6 +48,18 @@ export class ClassService {
   ): Promise<Class> {
     return await this.model
       .findByIdAndUpdate(id, updateClassDto, { new: true })
+      .populate({
+        path: 'members',
+        options: {
+          select: {
+            studentId: 1,
+            name: 1,
+            gender: 1,
+            status: 1,
+            avatar: 1,
+          },
+        },
+      })
       .exec();
   }
 
