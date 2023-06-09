@@ -69,6 +69,6 @@ export class ClassController {
       throw new NotFoundException(`Classroom with id: ${id} was not found!`);
     }
 
-    return classroom;
+    return {};
   }
 }
