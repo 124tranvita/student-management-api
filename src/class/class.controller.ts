@@ -97,7 +97,7 @@ export class ClassController {
 
     return {
       status: 'success',
-      data: null,
+      data: {},
     };
   }
 }
