@@ -46,7 +46,9 @@ export class ClassService {
     id: Types.ObjectId,
     updateClassDto: UpdateClassDto,
   ): Promise<Class> {
-    return await this.model.findByIdAndUpdate(id, updateClassDto).exec();
+    return await this.model
+      .findByIdAndUpdate(id, updateClassDto, { new: true })
+      .exec();
   }
 
   /** Delete classroom */
