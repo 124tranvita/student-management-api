@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Patch,
@@ -18,14 +19,24 @@ import { UpdateClassDto } from './dto/update-class.dto';
 export class ClassController {
   constructor(private readonly service: ClassService) {}
 
+  /** Get all classrooms */
   @Get()
   @ApiOkResponse()
+  @HttpCode(200)
   async findAll() {
-    return await this.service.findAll();
+    const classrooms = await this.service.findAll();
+
+    return {
+      message: 'success',
+      result: classrooms.length,
+      data: classrooms,
+    };
   }
 
+  /** Get a classroom */
   @Get(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async findOne(@Param('id') id: Types.ObjectId) {
     const classroom = await this.service.findOne(id);
 
@@ -33,18 +44,28 @@ export class ClassController {
     if (!classroom) {
       throw new NotFoundException(`Classroom with id: ${id} was not found!`);
     }
-
-    return classroom;
+    return {
+      message: 'success',
+      data: classroom,
+    };
   }
 
+  /** Create classroom */
   @Post()
   @ApiOkResponse()
+  @HttpCode(201)
   async create(@Body() createClassDto: CreateClassDto) {
-    return await this.service.create(createClassDto);
+    const classroom = await this.service.create(createClassDto);
+    return {
+      message: 'success',
+      data: classroom,
+    };
   }
 
+  /** Update classroom */
   @Patch(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async update(
     @Param('id') id: Types.ObjectId,
     @Body() updateClassDto: UpdateClassDto,
@@ -56,11 +77,16 @@ export class ClassController {
       throw new NotFoundException(`Classroom with id: ${id} was not found!`);
     }
 
-    return classroom;
+    return {
+      message: 'success',
+      data: classroom,
+    };
   }
 
+  /** Delete classroom */
   @Delete(':id')
   @ApiOkResponse()
+  @HttpCode(204)
   async delete(@Param('id') id: Types.ObjectId) {
     const classroom = await this.service.delete(id);
 
@@ -69,6 +95,9 @@ export class ClassController {
       throw new NotFoundException(`Classroom with id: ${id} was not found!`);
     }
 
-    return {};
+    return {
+      status: 'success',
+      data: null,
+    };
   }
 }
