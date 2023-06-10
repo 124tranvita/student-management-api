@@ -46,11 +46,25 @@ export class ClassService {
     id: Types.ObjectId,
     updateClassDto: UpdateClassDto,
   ): Promise<Class> {
-    return await this.model.findByIdAndUpdate(id, updateClassDto).exec();
+    return await this.model
+      .findByIdAndUpdate(id, updateClassDto, { new: true })
+      .populate({
+        path: 'members',
+        options: {
+          select: {
+            studentId: 1,
+            name: 1,
+            gender: 1,
+            status: 1,
+            avatar: 1,
+          },
+        },
+      })
+      .exec();
   }
 
   /** Delete classroom */
   async delete(id: Types.ObjectId): Promise<Class> {
-    return await this.model.findByIdAndDelete(id).exec();
+    return await this.model.findByIdAndDelete(id, { new: true }).exec();
   }
 }
