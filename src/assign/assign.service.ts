@@ -15,7 +15,7 @@ export class AssignService {
   ) {}
 
   /** Assign student to class */
-  async assignStudent(assignDto: AssignDto): Promise<Class> {
+  async assignStudent(assignDto: AssignDto): Promise<Student> {
     // Step 1: Check if student already assigned to the classroom
     const isAssigned = await this.assignModel.find({
       classroom: { _id: assignDto.classId },
@@ -30,33 +30,18 @@ export class AssignService {
 
     // Step 2: Get classroom and student document
     const classroom = await this.classModel
-      .findByIdAndUpdate(
-        assignDto.classId,
-        {
-          $push: { students: assignDto.studentId },
-        },
-        { new: true },
-      )
-      .populate({
-        path: 'members',
-        options: {
-          select: {
-            studentId: 1,
-            name: 1,
-            gender: 1,
-            status: 1,
-            avatar: 1,
-          },
-        },
-      })
-      .populate({
-        path: 'assigned',
+      .findByIdAndUpdate(assignDto.classId, {
+        $push: { students: assignDto.studentId },
       })
       .exec();
     const student = await this.studentModel
-      .findByIdAndUpdate(assignDto.studentId, {
-        $push: { classes: assignDto.classId },
-      })
+      .findByIdAndUpdate(
+        assignDto.studentId,
+        {
+          $push: { classes: assignDto.classId },
+        },
+        { new: true },
+      )
       .exec();
 
     if (!classroom || !student) {
@@ -71,7 +56,7 @@ export class AssignService {
       assignedAt: new Date(),
     }).save();
 
-    return classroom;
+    return student;
   }
 
   /** Assign student to class */
@@ -97,21 +82,6 @@ export class AssignService {
         },
         { new: true },
       )
-      .populate({
-        path: 'members',
-        options: {
-          select: {
-            studentId: 1,
-            name: 1,
-            gender: 1,
-            status: 1,
-            avatar: 1,
-          },
-        },
-      })
-      .populate({
-        path: 'assigned',
-      })
       .exec();
     const student = await this.studentModel
       .findByIdAndUpdate(assignDto.studentId, {
@@ -127,6 +97,21 @@ export class AssignService {
 
     await this.assignModel.findOneAndRemove(isAssigned);
 
-    return classroom;
+    return (
+      await classroom.populate({
+        path: 'members',
+        options: {
+          select: {
+            studentId: 1,
+            name: 1,
+            gender: 1,
+            status: 1,
+            avatar: 1,
+          },
+        },
+      })
+    ).populate({
+      path: 'assigned',
+    });
   }
 }
