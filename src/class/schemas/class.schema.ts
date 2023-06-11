@@ -62,4 +62,10 @@ ClassSchema.virtual('members', {
   localField: '_id',
 });
 
+ClassSchema.virtual('assigned', {
+  ref: 'Assign',
+  foreignField: 'classroom',
+  localField: '_id',
+});
+
 export { ClassSchema };

@@ -38,6 +38,9 @@ export class ClassService {
           },
         },
       })
+      .populate({
+        path: 'assigned',
+      })
       .exec();
   }
 
@@ -60,11 +63,14 @@ export class ClassService {
           },
         },
       })
+      .populate({
+        path: 'assigned',
+      })
       .exec();
   }
 
   /** Delete classroom */
   async delete(id: Types.ObjectId): Promise<Class> {
-    return await this.model.findByIdAndDelete(id, { new: true }).exec();
+    return await this.model.findByIdAndDelete(id).exec();
   }
 }

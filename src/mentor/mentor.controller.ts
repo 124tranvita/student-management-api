@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Patch,
@@ -18,14 +19,24 @@ import { UpdateMentorDto } from './dto/update-mentor.dto';
 export class MentorController {
   constructor(private readonly service: MentorService) {}
 
+  /** Get all mentors */
   @Get()
   @ApiOkResponse()
+  @HttpCode(200)
   async findAll() {
-    return await this.service.findAll();
+    const mentors = await this.service.findAll();
+
+    return {
+      message: 'success',
+      result: mentors.length,
+      data: mentors,
+    };
   }
 
+  /** Get a mentor */
   @Get(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async findOne(@Param('id') id: Types.ObjectId) {
     const mentor = await this.service.findOne(id);
 
@@ -34,17 +45,28 @@ export class MentorController {
       throw new NotFoundException(`Mentor with id: ${id} was not found!`);
     }
 
-    return mentor;
+    return {
+      message: 'success',
+      data: mentor,
+    };
   }
 
+  /** Add mentor */
   @Post()
   @ApiOkResponse()
+  @HttpCode(201)
   async create(@Body() createMentorDto: CreateMentorDto) {
-    return await this.service.create(createMentorDto);
+    const mentor = await this.service.create(createMentorDto);
+    return {
+      message: 'success',
+      data: mentor,
+    };
   }
 
+  /** Update mentor */
   @Patch(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async update(
     @Param('id') id: Types.ObjectId,
     @Body() updateMentorDto: UpdateMentorDto,
@@ -56,11 +78,16 @@ export class MentorController {
       throw new NotFoundException(`Mentor with id: ${id} was not found!`);
     }
 
-    return mentor;
+    return {
+      message: 'success',
+      data: mentor,
+    };
   }
 
+  /** Delete mentor */
   @Delete(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async delete(@Param('id') id: Types.ObjectId) {
     const mentor = await this.service.delete(id);
 
@@ -69,6 +96,9 @@ export class MentorController {
       throw new NotFoundException(`Mentor with id: ${id} was not found!`);
     }
 
-    return mentor;
+    return {
+      status: 'success',
+      data: {},
+    };
   }
 }

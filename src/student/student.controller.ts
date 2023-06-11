@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Patch,
@@ -18,14 +19,24 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 export class StudentController {
   constructor(private readonly service: StudentService) {}
 
+  /** Get all students */
   @Get()
   @ApiOkResponse()
+  @HttpCode(200)
   async findAll() {
-    return await this.service.findAll();
+    const students = await this.service.findAll();
+
+    return {
+      message: 'success',
+      result: students.length,
+      data: students,
+    };
   }
 
+  /** Get a student */
   @Get(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async findOne(@Param('id') id: Types.ObjectId) {
     const student = await this.service.findOne(id);
 
@@ -34,22 +45,33 @@ export class StudentController {
       throw new NotFoundException(`Student with id: ${id} was not found!`);
     }
 
-    return student;
+    return {
+      message: 'success',
+      data: student,
+    };
   }
 
+  /** Add student */
   @Post()
   @ApiOkResponse()
+  @HttpCode(201)
   async create(@Body() createStudentDto: CreateStudentDto) {
-    return await this.service.create(createStudentDto);
+    const student = await this.service.create(createStudentDto);
+
+    return {
+      message: 'success',
+      data: student,
+    };
   }
 
+  /** Update student */
   @Patch(':id')
   @ApiOkResponse()
+  @HttpCode(201)
   async update(
     @Param('id') id: Types.ObjectId,
     @Body() updateStudentDto: UpdateStudentDto,
   ) {
-    console.log({ updateStudentDto });
     const student = await this.service.update(id, updateStudentDto);
 
     // If no student was found
@@ -57,11 +79,16 @@ export class StudentController {
       throw new NotFoundException(`Student with id: ${id} was not found!`);
     }
 
-    return student;
+    return {
+      message: 'success',
+      data: student,
+    };
   }
 
+  /** Delete student */
   @Delete(':id')
   @ApiOkResponse()
+  @HttpCode(200)
   async delete(@Param('id') id: Types.ObjectId) {
     const student = await this.service.delete(id);
 
@@ -70,6 +97,9 @@ export class StudentController {
       throw new NotFoundException(`Student with id: ${id} was not found!`);
     }
 
-    return student;
+    return {
+      status: 'success',
+      data: {},
+    };
   }
 }

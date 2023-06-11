@@ -47,7 +47,9 @@ export class MentorService {
     id: Types.ObjectId,
     updateMentorDto: UpdateMentorDto,
   ): Promise<MentorDocument> {
-    return await this.model.findByIdAndUpdate(id, updateMentorDto);
+    return await this.model.findByIdAndUpdate(id, updateMentorDto, {
+      new: true,
+    });
   }
 
   /** Delete mentor */
