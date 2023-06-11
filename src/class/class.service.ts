@@ -38,6 +38,9 @@ export class ClassService {
           },
         },
       })
+      .populate({
+        path: 'assigned',
+      })
       .exec();
   }
 
@@ -59,6 +62,9 @@ export class ClassService {
             avatar: 1,
           },
         },
+      })
+      .populate({
+        path: 'assigned',
       })
       .exec();
   }

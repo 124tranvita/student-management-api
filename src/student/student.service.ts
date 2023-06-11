@@ -42,7 +42,9 @@ export class StudentService {
     id: Types.ObjectId,
     updateStudentDto: UpdateStudentDto,
   ): Promise<Student> {
-    return await this.model.findByIdAndUpdate(id, updateStudentDto).exec();
+    return await this.model
+      .findByIdAndUpdate(id, updateStudentDto, { new: true })
+      .exec();
   }
 
   /** Delete student */
