@@ -3,11 +3,14 @@ import {
   Controller,
   HttpCode,
   NotFoundException,
+  Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { AssignService } from './assign.service';
 import { AssignDto } from './dto/assign.dto';
+import { Types } from 'mongoose';
 
 @Controller('assign')
 export class AssignController {
@@ -29,11 +32,15 @@ export class AssignController {
     };
   }
 
-  @Post('/unassign')
+  @Patch(':classId')
   @ApiOkResponse()
-  @HttpCode(201)
-  async unassignStudent(@Body() assignDto: AssignDto) {
-    const result = await this.service.unassignStudent(assignDto);
+  @HttpCode(200)
+  async unassignStudent(
+    @Param('classId') classId: Types.ObjectId,
+    @Body('studentId') studentId: Types.ObjectId,
+  ) {
+    console.log({ classId, studentId });
+    const result = await this.service.unassignStudent({ classId, studentId });
 
     if (!result) {
       throw new NotFoundException(`Classroom or student with Id was not`);

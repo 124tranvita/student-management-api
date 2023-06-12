@@ -97,21 +97,17 @@ export class AssignService {
 
     await this.assignModel.findOneAndRemove(isAssigned);
 
-    return (
-      await classroom.populate({
-        path: 'members',
-        options: {
-          select: {
-            studentId: 1,
-            name: 1,
-            gender: 1,
-            status: 1,
-            avatar: 1,
-          },
+    return await classroom.populate({
+      path: 'members',
+      options: {
+        select: {
+          studentId: 1,
+          name: 1,
+          gender: 1,
+          status: 1,
+          avatar: 1,
         },
-      })
-    ).populate({
-      path: 'assigned',
+      },
     });
   }
 }
