@@ -39,7 +39,6 @@ export class AssignController {
     @Param('classId') classId: Types.ObjectId,
     @Body('studentId') studentId: Types.ObjectId,
   ) {
-    console.log({ classId, studentId });
     const result = await this.service.unassignStudent({ classId, studentId });
 
     if (!result) {

@@ -62,12 +62,14 @@ export class AssignService {
   /** Assign student to class */
   async unassignStudent(assignDto: AssignDto): Promise<Class> {
     // Step 1: Check if student already assigned to the classroom
-    const isAssigned = await this.assignModel.find({
-      classroom: { _id: assignDto.classId },
-      student: { _id: assignDto.studentId },
-    });
+    const isAssigned = await this.assignModel
+      .findOneAndRemove({
+        classroom: { _id: assignDto.classId },
+        student: { _id: assignDto.studentId },
+      })
+      .exec();
 
-    if (!isAssigned[0]) {
+    if (!isAssigned) {
       throw new NotFoundException(
         `Classroom was not found or student has not assigned to this classroom yet.`,
       );
@@ -94,8 +96,6 @@ export class AssignService {
         `Classroom or student with id was not found.`,
       );
     }
-
-    await this.assignModel.findOneAndRemove(isAssigned);
 
     return await classroom.populate({
       path: 'members',
