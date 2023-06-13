@@ -98,7 +98,7 @@ export class StudentController {
     }
 
     return {
-      status: 'success',
+      message: 'success',
       data: {},
     };
   }
