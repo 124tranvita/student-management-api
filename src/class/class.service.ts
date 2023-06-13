@@ -22,13 +22,20 @@ export class ClassService {
     return await this.model.find().exec();
   }
 
-  /** Get classroom */
-  async findOne(id: Types.ObjectId): Promise<Class> {
+  /** Get classroom with members pagination*/
+  async findOne(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Class> {
     return await this.model
       .findById(id)
       .populate({
         path: 'members',
         options: {
+          sort: {},
+          skip: limit * (page || 1) - limit,
+          limit: limit,
           select: {
             studentId: 1,
             name: 1,
@@ -47,6 +54,8 @@ export class ClassService {
   /** Update classroom information */
   async update(
     id: Types.ObjectId,
+    page: number,
+    limit: number,
     updateClassDto: UpdateClassDto,
   ): Promise<Class> {
     return await this.model
@@ -54,6 +63,9 @@ export class ClassService {
       .populate({
         path: 'members',
         options: {
+          sort: {},
+          skip: limit * (page || 1) - limit,
+          limit: limit,
           select: {
             studentId: 1,
             name: 1,

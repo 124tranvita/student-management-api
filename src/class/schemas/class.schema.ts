@@ -62,6 +62,13 @@ ClassSchema.virtual('members', {
   localField: '_id',
 });
 
+ClassSchema.virtual('grossCnt', {
+  ref: 'Student',
+  foreignField: 'classes',
+  localField: '_id',
+  count: true,
+});
+
 ClassSchema.virtual('assigned', {
   ref: 'Assign',
   foreignField: 'classroom',
