@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ClassService } from './class.service';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -33,20 +34,21 @@ export class ClassController {
     };
   }
 
-  /** Get a classroom */
-  @Get(':id')
+  /** Get classroom with pagination members */
+  @Get(':id?')
   @ApiOkResponse()
   @HttpCode(200)
-  async findOne(@Param('id') id: Types.ObjectId) {
-    const classroom = await this.service.findOne(id);
+  async findOne(
+    @Param('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classroom = await this.service.findOne(id, page, limit);
 
-    // If no classroom was found
-    if (!classroom) {
-      throw new NotFoundException(`Classroom with id: ${id} was not found!`);
-    }
     return {
-      message: 'success',
+      status: 'success',
       data: classroom,
+      grossCnt: classroom.students.length,
     };
   }
 
@@ -68,9 +70,16 @@ export class ClassController {
   @HttpCode(200)
   async update(
     @Param('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
     @Body() updateClassDto: UpdateClassDto,
   ) {
-    const classroom = await this.service.update(id, updateClassDto);
+    const classroom = await this.service.update(
+      id,
+      page,
+      limit,
+      updateClassDto,
+    );
 
     // If no classroom was found
     if (!classroom) {

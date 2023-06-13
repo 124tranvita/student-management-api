@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Class } from 'src/class/schemas/class.schema';
@@ -16,7 +20,15 @@ export class AssignService {
 
   /** Assign student to class */
   async assignStudent(assignDto: AssignDto): Promise<Student> {
-    // Step 1: Check if student already assigned to the classroom
+    // Step 1: Check if able to assign student to classroom
+    const checkAbleAssignToClass = await this.assignModel.find({
+      classroom: { _id: assignDto.classId },
+    });
+
+    if (checkAbleAssignToClass.length > 30) {
+      throw new BadRequestException(`Classroom is full.`);
+    }
+    // Step 2: Check if student already assigned to the classroom
     const isAssigned = await this.assignModel.find({
       classroom: { _id: assignDto.classId },
       student: { _id: assignDto.studentId },
@@ -28,7 +40,7 @@ export class AssignService {
       );
     }
 
-    // Step 2: Get classroom and student document
+    // Step 3: Get classroom and student document
     const classroom = await this.classModel
       .findByIdAndUpdate(assignDto.classId, {
         $push: { students: assignDto.studentId },
