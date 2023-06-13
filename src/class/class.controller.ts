@@ -46,7 +46,7 @@ export class ClassController {
     const classroom = await this.service.findOne(id, page, limit);
 
     return {
-      status: 'success',
+      message: 'success',
       data: classroom,
       grossCnt: classroom.students.length,
     };
@@ -105,7 +105,7 @@ export class ClassController {
     }
 
     return {
-      status: 'success',
+      message: 'success',
       data: {},
     };
   }
