@@ -47,6 +47,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     /** Exception response body */
     const responseBody = {
       statusCode: statusCode,
+      status: 'error',
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message,

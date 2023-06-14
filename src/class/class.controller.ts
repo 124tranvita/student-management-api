@@ -28,7 +28,7 @@ export class ClassController {
     const classrooms = await this.service.findAll();
 
     return {
-      message: 'success',
+      status: 'success',
       result: classrooms.length,
       data: classrooms,
     };
@@ -46,7 +46,7 @@ export class ClassController {
     const classroom = await this.service.findOne(id, page, limit);
 
     return {
-      message: 'success',
+      status: 'success',
       data: classroom,
       grossCnt: classroom.students.length,
     };
@@ -59,7 +59,7 @@ export class ClassController {
   async create(@Body() createClassDto: CreateClassDto) {
     const classroom = await this.service.create(createClassDto);
     return {
-      message: 'success',
+      status: 'success',
       data: classroom,
     };
   }
@@ -87,8 +87,9 @@ export class ClassController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: classroom,
+      grossCnt: classroom.students.length,
     };
   }
 
@@ -105,7 +106,7 @@ export class ClassController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: {},
     };
   }
