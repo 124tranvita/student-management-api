@@ -27,7 +27,7 @@ export class MentorController {
     const mentors = await this.service.findAll();
 
     return {
-      message: 'success',
+      status: 'success',
       result: mentors.length,
       data: mentors,
     };
@@ -46,7 +46,7 @@ export class MentorController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: mentor,
     };
   }
@@ -58,7 +58,7 @@ export class MentorController {
   async create(@Body() createMentorDto: CreateMentorDto) {
     const mentor = await this.service.create(createMentorDto);
     return {
-      message: 'success',
+      status: 'success',
       data: mentor,
     };
   }
@@ -79,7 +79,7 @@ export class MentorController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: mentor,
     };
   }

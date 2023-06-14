@@ -9,6 +9,7 @@ import { MentorModule } from './mentor/mentor.module';
 import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
 import { AssignModule } from './assign/assign.module';
+import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AssignModule } from './assign/assign.module';
     StudentModule,
     AuthModule,
     AssignModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],

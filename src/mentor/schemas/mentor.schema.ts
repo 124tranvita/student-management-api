@@ -69,4 +69,10 @@ MentorSchema.virtual('classrooms', {
   localField: '_id',
 });
 
+MentorSchema.virtual('events', {
+  ref: 'Event',
+  foreignField: 'mentor',
+  localField: '_id',
+});
+
 export { MentorSchema };

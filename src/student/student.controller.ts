@@ -27,7 +27,7 @@ export class StudentController {
     const students = await this.service.findAll();
 
     return {
-      message: 'success',
+      status: 'success',
       result: students.length,
       data: students,
     };
@@ -46,7 +46,7 @@ export class StudentController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: student,
     };
   }
@@ -59,7 +59,7 @@ export class StudentController {
     const student = await this.service.create(createStudentDto);
 
     return {
-      message: 'success',
+      status: 'success',
       data: student,
     };
   }
@@ -80,7 +80,7 @@ export class StudentController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: student,
     };
   }
@@ -98,7 +98,7 @@ export class StudentController {
     }
 
     return {
-      message: 'success',
+      status: 'success',
       data: {},
     };
   }

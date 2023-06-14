@@ -34,6 +34,9 @@ export class MentorService {
       .populate({
         path: 'classrooms',
       })
+      .populate({
+        path: 'events',
+      })
       .exec();
   }
 
@@ -47,9 +50,17 @@ export class MentorService {
     id: Types.ObjectId,
     updateMentorDto: UpdateMentorDto,
   ): Promise<MentorDocument> {
-    return await this.model.findByIdAndUpdate(id, updateMentorDto, {
-      new: true,
-    });
+    return await this.model
+      .findByIdAndUpdate(id, updateMentorDto, {
+        new: true,
+      })
+      .populate({
+        path: 'classrooms',
+      })
+      .populate({
+        path: 'events',
+      })
+      .exec();
   }
 
   /** Delete mentor */
