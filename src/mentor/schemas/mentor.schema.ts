@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Role } from 'src/auth/roles/role.enum';
 import { Class } from 'src/class/schemas/class.schema';
 
 export type MentorDocument = HydratedDocument<Mentor>;
@@ -48,9 +49,20 @@ export class Mentor {
 
   @Prop({
     default:
-      'https://e7.pngegg.com/pngimages/348/800/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child.png',
+      'https://www.iconarchive.com/download/i106655/diversity-avatars/avatars/native-man.512.png',
   })
   avatar: string;
+
+  @Prop({
+    required: true,
+    default: '0',
+  })
+  education: string;
+
+  @Prop({
+    required: true,
+  })
+  specialized: string;
 
   @Prop()
   refreshToken: string;
@@ -59,6 +71,9 @@ export class Mentor {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })
   @Type(() => Class)
   classes: Class[];
+
+  @Prop({ required: true, default: 'mentor' })
+  roles: Role;
 }
 
 const MentorSchema = SchemaFactory.createForClass(Mentor);
