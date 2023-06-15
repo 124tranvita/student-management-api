@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { MentorService } from './mentor.service';
 import { Types } from 'mongoose';
@@ -23,12 +24,12 @@ export class MentorController {
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll() {
-    const mentors = await this.service.findAll();
+  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    const mentors = await this.service.findAll(page, limit);
 
     return {
       status: 'success',
-      result: mentors.length,
+      grossCnt: mentors.length,
       data: mentors,
     };
   }

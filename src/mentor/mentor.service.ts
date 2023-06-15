@@ -23,8 +23,13 @@ export class MentorService {
   }
 
   /** Get all mentors */
-  async findAll(): Promise<Mentor[]> {
-    return await this.model.find().exec();
+  async findAll(page: number, limit: number): Promise<Mentor[]> {
+    return await this.model
+      .find()
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   /** Get mentor */
