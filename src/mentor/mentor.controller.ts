@@ -24,12 +24,17 @@ export class MentorController {
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
-    const mentors = await this.service.findAll(page, limit);
+  async findAll(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const mentors = await this.service.findAll(id, page, limit);
+    const count = await this.service.count();
 
     return {
       status: 'success',
-      grossCnt: mentors.length,
+      grossCnt: count - 1, //gorssCnt exclude current mentor
       data: mentors,
     };
   }
@@ -99,7 +104,7 @@ export class MentorController {
 
     return {
       status: 'success',
-      data: {},
+      data: mentor,
     };
   }
 }

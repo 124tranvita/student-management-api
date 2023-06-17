@@ -23,9 +23,13 @@ export class MentorService {
   }
 
   /** Get all mentors */
-  async findAll(page: number, limit: number): Promise<Mentor[]> {
+  async findAll(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Mentor[]> {
     return await this.model
-      .find()
+      .find({ _id: { $ne: id } })
       .skip((page - 1) * limit)
       .limit(limit * 1)
       .sort({ createdAt: -1 })
@@ -71,5 +75,10 @@ export class MentorService {
   /** Delete mentor */
   async delete(id: Types.ObjectId): Promise<MentorDocument> {
     return await this.model.findByIdAndDelete(id).exec();
+  }
+
+  // Getting the numbers of documents stored in database
+  async count(): Promise<number> {
+    return await this.model.countDocuments();
   }
 }

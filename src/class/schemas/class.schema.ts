@@ -21,7 +21,7 @@ export class Class {
   name: string;
 
   @Prop()
-  description: string;
+  description?: string;
 
   @Prop({
     required: true,
@@ -38,12 +38,11 @@ export class Class {
 
   // Class belong one mentor
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: 'Mentor',
-    required: true,
   })
   @Type(() => Mentor)
-  mentor: Mentor;
+  mentors?: Mentor[];
 
   // Classroom can have more than one students
   @Prop({
@@ -51,7 +50,7 @@ export class Class {
     ref: 'Student',
   })
   @Type(() => Student)
-  students: Student[];
+  students?: Student[];
 }
 
 const ClassSchema = SchemaFactory.createForClass(Class);
