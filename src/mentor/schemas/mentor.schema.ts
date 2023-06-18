@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
 import { Class } from 'src/class/schemas/class.schema';
+import { Student } from 'src/student/schemas/student.schema';
 
 export type MentorDocument = HydratedDocument<Mentor>;
 
@@ -67,13 +68,16 @@ export class Mentor {
   @Prop()
   refreshToken: string;
 
-  // Mentor may have more than on classroom
+  @Prop({ required: true, default: 'mentor' })
+  roles: Role;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })
   @Type(() => Class)
   classes: Class[];
 
-  @Prop({ required: true, default: 'mentor' })
-  roles: Role;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
+  @Type(() => Student)
+  students: Student[];
 }
 
 const MentorSchema = SchemaFactory.createForClass(Mentor);

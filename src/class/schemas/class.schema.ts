@@ -55,13 +55,26 @@ export class Class {
 
 const ClassSchema = SchemaFactory.createForClass(Class);
 
-ClassSchema.virtual('members', {
+ClassSchema.virtual('assignedMentors', {
+  ref: 'Mentor',
+  foreignField: 'classes',
+  localField: '_id',
+});
+
+ClassSchema.virtual('mentorCnt', {
+  ref: 'Mentor',
+  foreignField: 'classes',
+  localField: '_id',
+  count: true,
+});
+
+ClassSchema.virtual('assignedStudents', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
 });
 
-ClassSchema.virtual('grossCnt', {
+ClassSchema.virtual('studentCnt', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
