@@ -9,6 +9,7 @@ import { UpdateClassDto } from './dto/update-class.dto';
 export class ClassService {
   constructor(@InjectModel(Class.name) private model: Model<Class>) {}
 
+  /** ADMIN ROLE */
   /** Create classroom
    * @param createClassDto - Class create Dto
    * @returns - New classroom
@@ -159,14 +160,6 @@ export class ClassService {
       .exec();
   }
 
-  /** Get all classrooms by mentor Id (for mentor role)
-   * @param id - Mentor's Id
-   * @returns - List of classrooms belong to mentor
-   */
-  async findAllByMentorId(id: Types.ObjectId): Promise<Class[]> {
-    return await this.model.find({ mentors: { $in: [id] } }).exec();
-  }
-
   /** Find if current logged mentor is already existing in classroom
    * @param id - Classroom Id
    * @param mentorId - Current logged in mentor Id
@@ -190,4 +183,72 @@ export class ClassService {
   async countByCondition<T>(condition: T): Promise<number> {
     return await this.model.count(condition);
   }
+
+  /** MENTOR ROLE */
+  /** Get all classrooms by mentor Id (for mentor role)
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of classrooms belong to mentor
+   */
+  async findAllByMentor(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Class[]> {
+    return await this.model
+      .find({ mentors: { $in: [id] } })
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  /** Get a classroom (for mentor role)
+   * @param id - Classroom's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - Classroom with pagination assgined student
+   */
+  async findOneByMentor(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Class> {
+    return await this.model
+      .findById(id)
+      .populate({
+        path: 'assignedStudents',
+        options: {
+          sort: {},
+          skip: limit * (page || 1) - limit,
+          limit: limit,
+          select: {
+            studentId: 1,
+            name: 1,
+            gender: 1,
+            status: 1,
+            avatar: 1,
+          },
+        },
+      })
+      .populate({
+        path: 'studentCnt',
+      })
+      .exec();
+  }
 }
+
+// async findClassroomList(
+//   id: Types.ObjectId,
+//   page: number,
+//   limit: number,
+// ): Promise<Class[]> {
+//   return await this.model
+//     .find({ mentors: { $nin: [id] } })
+//     .skip((page - 1) * limit)
+//     .limit(limit * 1)
+//     .sort({ createdAt: -1 })
+//     .select('name description languages')
+//     .exec();
+// }

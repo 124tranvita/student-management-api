@@ -202,4 +202,58 @@ export class ClassController {
       data: classroom,
     };
   }
+
+  /** MENTOR ROLE */
+  /** Get all classrooms by mentor Id (for mentor role)
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of classrooms belong to mentor
+   */
+  @Get('mentor/all/:id')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllByMentor(
+    @Param('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classrooms = await this.service.findAllByMentor(id, page, limit);
+
+    const count = await this.service.countByCondition({
+      mentors: { $in: [id] },
+    });
+
+    return {
+      status: 'success',
+      data: classrooms,
+      grossCnt: count,
+    };
+  }
+
+  /** Get a classroom (for mentor role)
+   * @param id - Classroom's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - Classroom with pagination assgined student
+   */
+  @Get('mentor/one/:id')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findOneByMentor(
+    @Param('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classroom = await this.service.findOneByMentor(id, page, limit);
+
+    if (!classroom) {
+      throw new NotFoundException(`Classroom with id ${id} was not found`);
+    }
+
+    return {
+      status: 'success',
+      data: classroom,
+    };
+  }
 }

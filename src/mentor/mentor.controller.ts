@@ -20,7 +20,21 @@ import { UpdateMentorDto } from './dto/update-mentor.dto';
 export class MentorController {
   constructor(private readonly service: MentorService) {}
 
-  /** Get all mentors */
+  /** Create new mentor
+   * @param createMentorDto - Create mentor Dto
+   * @returns - New added mentor
+   */
+  @Post()
+  @ApiOkResponse()
+  @HttpCode(201)
+  async create(@Body() createMentorDto: CreateMentorDto) {
+    const mentor = await this.service.create(createMentorDto);
+    return {
+      status: 'success',
+      data: mentor,
+    };
+  }
+
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
@@ -51,18 +65,6 @@ export class MentorController {
       throw new NotFoundException(`Mentor with id: ${id} was not found!`);
     }
 
-    return {
-      status: 'success',
-      data: mentor,
-    };
-  }
-
-  /** Add mentor */
-  @Post()
-  @ApiOkResponse()
-  @HttpCode(201)
-  async create(@Body() createMentorDto: CreateMentorDto) {
-    const mentor = await this.service.create(createMentorDto);
     return {
       status: 'success',
       data: mentor,

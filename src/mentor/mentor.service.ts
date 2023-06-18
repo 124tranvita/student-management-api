@@ -10,7 +10,10 @@ import { UpdateMentorDto } from './dto/update-mentor.dto';
 export class MentorService {
   constructor(@InjectModel(Mentor.name) private model: Model<Mentor>) {}
 
-  /** Create new mentor */
+  /** Create new mentor
+   * @param createMentorDto - Create mentor Dto
+   * @returns - New added mentor
+   */
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
     // Hash password
     const salt = await bcrypt.genSalt();
