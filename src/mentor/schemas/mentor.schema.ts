@@ -82,8 +82,14 @@ export class Mentor {
 
 const MentorSchema = SchemaFactory.createForClass(Mentor);
 
-MentorSchema.virtual('classrooms', {
+MentorSchema.virtual('assignedClasses', {
   ref: 'Class',
+  foreignField: 'mentor',
+  localField: '_id',
+});
+
+MentorSchema.virtual('assignedStudents', {
+  ref: 'Student',
   foreignField: 'mentor',
   localField: '_id',
 });

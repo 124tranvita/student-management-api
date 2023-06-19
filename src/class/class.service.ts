@@ -238,17 +238,3 @@ export class ClassService {
       .exec();
   }
 }
-
-// async findClassroomList(
-//   id: Types.ObjectId,
-//   page: number,
-//   limit: number,
-// ): Promise<Class[]> {
-//   return await this.model
-//     .find({ mentors: { $nin: [id] } })
-//     .skip((page - 1) * limit)
-//     .limit(limit * 1)
-//     .sort({ createdAt: -1 })
-//     .select('name description languages')
-//     .exec();
-// }
