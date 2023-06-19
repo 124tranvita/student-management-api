@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Class } from 'src/class/schemas/class.schema';
 import { Student } from 'src/student/schemas/student.schema';
 import { Assign } from './schemas/assign.schema';
@@ -121,5 +121,23 @@ export class AssignService {
         },
       },
     });
+  }
+
+  /** Assign mentor to classrooms
+   * @param mentorId - Current logged in mentor Id
+   * @param classId - Array of classroom Id
+   * @returns - List of Classroom which mentor is assigned
+   */
+  async assignMentor(
+    mentorId: Types.ObjectId,
+    classId: Types.ObjectId,
+  ): Promise<Class> {
+    return await this.classModel
+      .findOneAndUpdate(
+        { _id: classId },
+        { $push: { mentors: mentorId } },
+        { new: true },
+      )
+      .exec();
   }
 }

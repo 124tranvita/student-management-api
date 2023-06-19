@@ -10,5 +10,6 @@ import { Class, ClassSchema } from './schemas/class.schema';
   imports: [
     MongooseModule.forFeature([{ name: Class.name, schema: ClassSchema }]),
   ],
+  exports: [ClassService],
 })
 export class ClassModule {}
