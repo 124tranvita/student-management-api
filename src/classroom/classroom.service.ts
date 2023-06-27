@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Class, ClassDocument } from './schemas/class.schema';
-import { CreateClassDto } from './dto/create-class.dto';
-import { UpdateClassDto } from './dto/update-class.dto';
+import { Classroom, ClassroomDocument } from './schemas/classroom.schema';
+import { CreateClassroomDto } from './dto/create-classroom.dto';
+import { UpdateClassroomDto } from './dto/update-classroom.dto';
 
 @Injectable()
-export class ClassService {
-  constructor(@InjectModel(Class.name) private model: Model<Class>) {}
+export class ClassroomService {
+  constructor(@InjectModel(Classroom.name) private model: Model<Classroom>) {}
 
   /** ADMIN ROLE */
   /** Create classroom
-   * @param createClassDto - Create class  Dto
+   * @param createClassroomDto - Create class  Dto
    * @returns - New classroom document
    */
-  async create(createClassDto: CreateClassDto): Promise<ClassDocument> {
+  async create(
+    createClassroomDto: CreateClassroomDto,
+  ): Promise<ClassroomDocument> {
     return await new this.model({
-      ...createClassDto,
+      ...createClassroomDto,
       createdAt: new Date(),
     }).save();
   }
@@ -26,7 +28,7 @@ export class ClassService {
    * @param limit - Limit per page
    * @returns - List of all classroom documents
    */
-  async findAll(page: number, limit: number): Promise<Class[]> {
+  async findAll(page: number, limit: number): Promise<Classroom[]> {
     return await this.model
       .find()
       .skip((page - 1) * limit)
@@ -39,21 +41,21 @@ export class ClassService {
    * @param id - Classroom's Id
    * @returns - Founded classroom document by Id
    */
-  async findOne(id: Types.ObjectId): Promise<Class> {
+  async findOne(id: Types.ObjectId): Promise<Classroom> {
     return await this.model.findById(id).exec();
   }
 
   /** Update classroom
    * @param id - Classroom's Id
-   * @param updateClassDto - Classroom update Dto
+   * @param updateClassroomDto - Classroom update Dto
    * @returns - Updated classroom
    */
   async update(
     id: Types.ObjectId,
-    updateClassDto: UpdateClassDto,
-  ): Promise<Class> {
+    updateClassroomDto: UpdateClassroomDto,
+  ): Promise<Classroom> {
     return await this.model
-      .findByIdAndUpdate(id, updateClassDto, { new: true })
+      .findByIdAndUpdate(id, updateClassroomDto, { new: true })
       .exec();
   }
 
@@ -61,7 +63,7 @@ export class ClassService {
    * @param id - Classroom's Id
    * @returns - Deleted classroom document
    */
-  async delete(id: Types.ObjectId): Promise<Class> {
+  async delete(id: Types.ObjectId): Promise<Classroom> {
     return await this.model.findByIdAndDelete(id).exec();
   }
 
@@ -75,7 +77,7 @@ export class ClassService {
     id: Types.ObjectId,
     page: number,
     limit: number,
-  ): Promise<Class[]> {
+  ): Promise<Classroom[]> {
     return await this.model
       .find({ mentors: { $nin: [id] } })
       .skip((page - 1) * limit)
@@ -95,7 +97,7 @@ export class ClassService {
     id: Types.ObjectId,
     page: number,
     limit: number,
-  ): Promise<Class> {
+  ): Promise<Classroom> {
     return await this.model
       .findById(id)
       .select('name')
@@ -127,7 +129,7 @@ export class ClassService {
     id: Types.ObjectId,
     page: number,
     limit: number,
-  ): Promise<Class> {
+  ): Promise<Classroom> {
     return await this.model
       .findById(id)
       .select('name')
@@ -157,7 +159,7 @@ export class ClassService {
   async assignMentor(
     id: Types.ObjectId,
     mentorId: Types.ObjectId,
-  ): Promise<Class> {
+  ): Promise<Classroom> {
     return await this.model
       .findOneAndUpdate(
         { _id: id },
@@ -175,7 +177,7 @@ export class ClassService {
   async findExistingDoc(
     id: Types.ObjectId,
     mentorId: Types.ObjectId,
-  ): Promise<Class[]> {
+  ): Promise<Classroom[]> {
     return await this.model
       .find({ _id: { $eq: id }, mentors: { $in: [mentorId] } })
       .exec();
@@ -202,7 +204,7 @@ export class ClassService {
     id: Types.ObjectId,
     page: number,
     limit: number,
-  ): Promise<Class[]> {
+  ): Promise<Classroom[]> {
     return await this.model
       .find({ mentors: { $in: [id] } })
       .skip((page - 1) * limit)
@@ -221,7 +223,7 @@ export class ClassService {
     id: Types.ObjectId,
     page: number,
     limit: number,
-  ): Promise<Class> {
+  ): Promise<Classroom> {
     return await this.model
       .findById(id)
       .populate({

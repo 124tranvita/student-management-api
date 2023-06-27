@@ -4,7 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ClassModule } from './class/class.module';
+import { ClassroomModule } from './classroom/classroom.module';
 import { MentorModule } from './mentor/mentor.module';
 import { StudentModule } from './student/student.module';
 import { AuthModule } from './auth/auth.module';
@@ -25,7 +25,7 @@ import { EventModule } from './event/event.module';
       ttl: 60,
       limit: 10,
     }),
-    ClassModule,
+    ClassroomModule,
     MentorModule,
     StudentModule,
     AuthModule,

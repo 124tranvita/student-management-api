@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsArray,
   IsDateString,
   IsNotEmpty,
   IsOptional,
@@ -55,14 +54,6 @@ export class BaseStudentDto {
     default: '0',
   })
   gender: string;
-
-  @IsOptional()
-  @IsArray()
-  @ApiProperty({
-    description: 'Student known programming languages',
-    type: Array,
-  })
-  language?: string[];
 
   @IsOptional()
   @IsString()

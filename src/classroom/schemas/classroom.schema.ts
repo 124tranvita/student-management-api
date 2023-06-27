@@ -4,7 +4,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Mentor } from 'src/mentor/schemas/mentor.schema';
 import { Student } from 'src/student/schemas/student.schema';
 
-export type ClassDocument = HydratedDocument<Class>;
+export type ClassroomDocument = HydratedDocument<Classroom>;
 
 @Schema({
   toJSON: {
@@ -12,7 +12,7 @@ export type ClassDocument = HydratedDocument<Class>;
     virtuals: true,
   },
 })
-export class Class {
+export class Classroom {
   @Prop({
     required: true,
     unique: true,
@@ -53,38 +53,38 @@ export class Class {
   students?: Student[];
 }
 
-const ClassSchema = SchemaFactory.createForClass(Class);
+const ClassroomSchema = SchemaFactory.createForClass(Classroom);
 
-ClassSchema.virtual('assignedMentors', {
+ClassroomSchema.virtual('assignedMentors', {
   ref: 'Mentor',
   foreignField: 'classes',
   localField: '_id',
 });
 
-ClassSchema.virtual('mentorCnt', {
+ClassroomSchema.virtual('mentorCnt', {
   ref: 'Mentor',
   foreignField: 'classes',
   localField: '_id',
   count: true,
 });
 
-ClassSchema.virtual('assignedStudents', {
+ClassroomSchema.virtual('assignedStudents', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
 });
 
-ClassSchema.virtual('studentCnt', {
+ClassroomSchema.virtual('studentCnt', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
   count: true,
 });
 
-ClassSchema.virtual('assigned', {
+ClassroomSchema.virtual('assigned', {
   ref: 'Assign',
   foreignField: 'classroom',
   localField: '_id',
 });
 
-export { ClassSchema };
+export { ClassroomSchema };

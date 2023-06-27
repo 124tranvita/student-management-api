@@ -1,8 +1,8 @@
 import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseClassDto } from './base-class.dto';
+import { BaseClassroomDto } from './base-classroom.dto';
 
-export class CreateClassDto extends BaseClassDto {
+export class CreateClassroomDto extends BaseClassroomDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false, default: 'defaut-profile.jpg' })

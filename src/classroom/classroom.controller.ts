@@ -10,25 +10,25 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ClassService } from './class.service';
+import { ClassroomService } from './classroom.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { CreateClassDto } from './dto/create-class.dto';
-import { UpdateClassDto } from './dto/update-class.dto';
+import { CreateClassroomDto } from './dto/create-classroom.dto';
+import { UpdateClassroomDto } from './dto/update-classroom.dto';
 
-@Controller('class')
-export class ClassController {
-  constructor(private readonly service: ClassService) {}
+@Controller('classroom')
+export class ClassroomController {
+  constructor(private readonly service: ClassroomService) {}
 
   /** Create classroom
-   * @param createClassDto - Class create Dto
+   * @param createClassroomDto - Class create Dto
    * @returns - New classroom
    */
   @Post()
   @ApiOkResponse()
   @HttpCode(201)
-  async create(@Body() createClassDto: CreateClassDto) {
-    const classroom = await this.service.create(createClassDto);
+  async create(@Body() createClassroomDto: CreateClassroomDto) {
+    const classroom = await this.service.create(createClassroomDto);
     return {
       status: 'success',
       data: classroom,
@@ -74,7 +74,7 @@ export class ClassController {
 
   /** Update classroom
    * @param id - Classroom's Id
-   * @param updateClassDto - Classroom update Dto
+   * @param updateClassroomDto - Classroom update Dto
    * @returns - Updated classroom
    */
   @Patch(':id')
@@ -82,9 +82,9 @@ export class ClassController {
   @HttpCode(200)
   async update(
     @Param('id') id: Types.ObjectId,
-    @Body() updateClassDto: UpdateClassDto,
+    @Body() updateClassroomDto: UpdateClassroomDto,
   ) {
-    const classroom = await this.service.update(id, updateClassDto);
+    const classroom = await this.service.update(id, updateClassroomDto);
 
     // If no classroom was found
     if (!classroom) {

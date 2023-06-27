@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { ClassService } from 'src/class/class.service';
+import { ClassroomService } from 'src/classroom/classroom.service';
 import { MentorService } from 'src/mentor/mentor.service';
 import { AssignService } from './assign.service';
 import { AssignDto } from './dto/assign.dto';
@@ -19,7 +19,7 @@ import { AssignDto } from './dto/assign.dto';
 export class AssignController {
   constructor(
     private readonly service: AssignService,
-    private readonly classService: ClassService,
+    private readonly classroomService: ClassroomService,
     private readonly mentorService: MentorService,
   ) {}
 
@@ -37,7 +37,7 @@ export class AssignController {
   ) {
     const classrooms = await Promise.all(
       classIds.map(async (classId) => {
-        const isAssigned = await this.classService.findExistingDoc(
+        const isAssigned = await this.classroomService.findExistingDoc(
           new Types.ObjectId(classId),
           mentorId,
         );
@@ -48,7 +48,7 @@ export class AssignController {
           );
         }
 
-        return await this.classService.assignMentor(
+        return await this.classroomService.assignMentor(
           new Types.ObjectId(classId),
           mentorId,
         );

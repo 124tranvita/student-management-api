@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Student } from './student.schema';
 import { Type } from 'class-transformer';
 import { Mentor } from 'src/mentor/schemas/mentor.schema';
+import { Student } from 'src/student/schemas/student.schema';
 
 export type EventDocument = HydratedDocument<Event>;
 

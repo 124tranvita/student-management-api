@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -44,7 +45,7 @@ export class StudentController {
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll(@Param('page') page: number, @Param('limit') limit: number) {
+  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
     const students = await this.service.findAll(page, limit);
     const count = await this.service.count();
 

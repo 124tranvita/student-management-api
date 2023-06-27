@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class BaseClassDto {
+export class BaseClassroomDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)

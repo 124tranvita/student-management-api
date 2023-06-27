@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
-import { Class } from 'src/class/schemas/class.schema';
+import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Student } from 'src/student/schemas/student.schema';
 
 export type MentorDocument = HydratedDocument<Mentor>;
@@ -71,9 +71,9 @@ export class Mentor {
   @Prop({ required: true, default: 'mentor' })
   roles: Role;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })
-  @Type(() => Class)
-  classes: Class[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' })
+  @Type(() => Classroom)
+  classes: Classroom[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
   @Type(() => Student)
@@ -83,13 +83,13 @@ export class Mentor {
 const MentorSchema = SchemaFactory.createForClass(Mentor);
 
 MentorSchema.virtual('assignedClasses', {
-  ref: 'Class',
+  ref: 'Classroom',
   foreignField: 'mentor',
   localField: '_id',
 });
 
 MentorSchema.virtual('classroomCnt', {
-  ref: 'Class',
+  ref: 'Classroom',
   foreignField: 'mentor',
   localField: '_id',
   count: true,

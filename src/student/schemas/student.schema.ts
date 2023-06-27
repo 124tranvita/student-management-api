@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Class } from 'src/class/schemas/class.schema';
+import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Mentor } from 'src/mentor/schemas/mentor.schema';
 
 export type StudentDocument = HydratedDocument<Student>;
@@ -65,10 +65,10 @@ export class Student {
   // Student belong more than one classroom
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Class',
+    ref: 'Classroom',
   })
-  @Type(() => Class)
-  classes: Class[];
+  @Type(() => Classroom)
+  classes: Classroom[];
 
   // Student belong only one mentor
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' })
@@ -79,7 +79,7 @@ export class Student {
 const StudentSchema = SchemaFactory.createForClass(Student);
 
 StudentSchema.virtual('classroom', {
-  ref: 'Class',
+  ref: 'Classroom',
   foreignField: 'students',
   localField: '_id',
 });

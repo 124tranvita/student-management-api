@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Class } from 'src/class/schemas/class.schema';
+import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Student } from 'src/student/schemas/student.schema';
 import { Assign } from './schemas/assign.schema';
 import { AssignDto } from './dto/assign.dto';
@@ -13,7 +13,7 @@ import { AssignDto } from './dto/assign.dto';
 @Injectable()
 export class AssignService {
   constructor(
-    @InjectModel(Class.name) private classModel: Model<Class>,
+    @InjectModel(Classroom.name) private classModel: Model<Classroom>,
     @InjectModel(Student.name) private studentModel: Model<Student>,
     @InjectModel(Assign.name) private assignModel: Model<Assign>,
   ) {}
@@ -72,7 +72,7 @@ export class AssignService {
   }
 
   /** Assign student to class */
-  async unassignStudent(assignDto: AssignDto): Promise<Class> {
+  async unassignStudent(assignDto: AssignDto): Promise<Classroom> {
     // Step 1: Check if student already assigned to the classroom
     const isAssigned = await this.assignModel
       .findOneAndRemove({
@@ -131,7 +131,7 @@ export class AssignService {
   async assignMentor(
     mentorId: Types.ObjectId,
     classId: Types.ObjectId,
-  ): Promise<Class> {
+  ): Promise<Classroom> {
     return await this.classModel
       .findOneAndUpdate(
         { _id: classId },
