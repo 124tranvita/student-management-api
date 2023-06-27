@@ -135,8 +135,12 @@ export class MentorController {
   @Get('classrooms/:id')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAssignedClass(id: Types.ObjectId, page: number, limit: number) {
-    const mentor = this.service.findAssignedClass(id, page, limit);
+  async findAssignedClass(
+    @Param('id') id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    const mentor = await this.service.findAssignedClass(id, page, limit);
 
     if (!mentor) {
       throw new NotFoundException(`Mentor with id ${id} was not found`);
@@ -157,8 +161,12 @@ export class MentorController {
   @Get('students/:id')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAssignedStudent(id: Types.ObjectId, page: number, limit: number) {
-    const mentor = this.service.findAssignedStudent(id, page, limit);
+  async findAssignedStudent(
+    @Param('id') id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    const mentor = await this.service.findAssignedStudent(id, page, limit);
 
     if (!mentor) {
       throw new NotFoundException(`Mentor with id ${id} was not found`);

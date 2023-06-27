@@ -42,27 +42,36 @@ export class Student {
 
   @Prop({
     required: true,
-    default: 'Active',
+    default: '1',
   })
   status: string;
 
   @Prop({
-    default:
-      'https://www.les-soins-infirmiers.fr/wp-content/uploads/2018/04/default-avatar-woman.png',
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128349.png',
   })
-  avatar: string;
+  avatar?: string;
+
+  @Prop({
+    default:
+      'https://img.freepik.com/free-vector/flat-geometric-background_23-2148957201.jpg',
+  })
+  cover?: string;
+
+  @Prop({
+    required: true,
+  })
+  createdAt: Date;
 
   // Student belong more than one classroom
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Class',
-    required: true,
   })
   @Type(() => Class)
   classes: Class[];
 
   // Student belong only one mentor
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor', required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' })
   @Type(() => Mentor)
   mentor: Mentor;
 }

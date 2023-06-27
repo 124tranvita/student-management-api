@@ -11,8 +11,8 @@ export class ClassService {
 
   /** ADMIN ROLE */
   /** Create classroom
-   * @param createClassDto - Class create Dto
-   * @returns - New classroom
+   * @param createClassDto - Create class  Dto
+   * @returns - New classroom document
    */
   async create(createClassDto: CreateClassDto): Promise<ClassDocument> {
     return await new this.model({
@@ -22,15 +22,22 @@ export class ClassService {
   }
 
   /** Get all classrooms
-   * @returns - List of all classrooms
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of all classroom documents
    */
-  async findAll(): Promise<Class[]> {
-    return await this.model.find().exec();
+  async findAll(page: number, limit: number): Promise<Class[]> {
+    return await this.model
+      .find()
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   /** Get classroom
    * @param id - Classroom's Id
-   * @returns - Founded classroom by Id
+   * @returns - Founded classroom document by Id
    */
   async findOne(id: Types.ObjectId): Promise<Class> {
     return await this.model.findById(id).exec();
@@ -52,7 +59,7 @@ export class ClassService {
 
   /** Delete classroom
    * @param id - Classroom's Id
-   * @returns - Deleted classroom
+   * @returns - Deleted classroom document
    */
   async delete(id: Types.ObjectId): Promise<Class> {
     return await this.model.findByIdAndDelete(id).exec();

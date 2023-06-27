@@ -44,7 +44,7 @@ export class Mentor {
   password: string;
 
   @Prop({
-    default: 'Active',
+    default: '1',
   })
   status: string;
 
@@ -86,6 +86,13 @@ MentorSchema.virtual('assignedClasses', {
   ref: 'Class',
   foreignField: 'mentor',
   localField: '_id',
+});
+
+MentorSchema.virtual('classroomCnt', {
+  ref: 'Class',
+  foreignField: 'mentor',
+  localField: '_id',
+  count: true,
 });
 
 MentorSchema.virtual('assignedStudents', {

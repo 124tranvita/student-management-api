@@ -19,21 +19,46 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 export class StudentController {
   constructor(private readonly service: StudentService) {}
 
-  /** Get all students */
-  @Get()
+  /** ADMIN ROLE */
+  /** Create classroom
+   * @param createStudentDto - Create student  Dto
+   * @returns - New student document
+   */
+  @Post()
   @ApiOkResponse()
-  @HttpCode(200)
-  async findAll() {
-    const students = await this.service.findAll();
+  @HttpCode(201)
+  async create(@Body() createStudentDto: CreateStudentDto) {
+    const student = await this.service.create(createStudentDto);
 
     return {
       status: 'success',
-      result: students.length,
+      data: student,
+    };
+  }
+
+  /** Get all students
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of all student documents
+   */
+  @Get()
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAll(@Param('page') page: number, @Param('limit') limit: number) {
+    const students = await this.service.findAll(page, limit);
+    const count = await this.service.count();
+
+    return {
+      status: 'success',
+      grossCnt: count,
       data: students,
     };
   }
 
-  /** Get a student */
+  /** Get student
+   * @param id - student's Id
+   * @returns - Founded student document by Id
+   */
   @Get(':id')
   @ApiOkResponse()
   @HttpCode(200)
@@ -51,20 +76,11 @@ export class StudentController {
     };
   }
 
-  /** Add student */
-  @Post()
-  @ApiOkResponse()
-  @HttpCode(201)
-  async create(@Body() createStudentDto: CreateStudentDto) {
-    const student = await this.service.create(createStudentDto);
-
-    return {
-      status: 'success',
-      data: student,
-    };
-  }
-
-  /** Update student */
+  /** Update student
+   * @param id - Student's Id
+   * @param updateClassDto - student update Dto
+   * @returns - Updated student
+   */
   @Patch(':id')
   @ApiOkResponse()
   @HttpCode(201)
@@ -85,7 +101,10 @@ export class StudentController {
     };
   }
 
-  /** Delete student */
+  /** Delete student
+   * @param id - Student's Id
+   * @returns - Deleted student document
+   */
   @Delete(':id')
   @ApiOkResponse()
   @HttpCode(200)
@@ -99,7 +118,7 @@ export class StudentController {
 
     return {
       status: 'success',
-      data: {},
+      data: student,
     };
   }
 }

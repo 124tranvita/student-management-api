@@ -21,7 +21,6 @@ export class BaseClassDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(3)
   @MaxLength(128)
   @ApiProperty({
     description: 'Classroom description',

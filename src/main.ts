@@ -37,13 +37,13 @@ async function bootstrap() {
   );
 
   const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   const config = new DocumentBuilder()
     .setTitle('Students management')
     .setDescription('The students management API')
     .setVersion('0.0.1')
-    .addServer('https://code.nezumi.asia/proxy/4100/')
+    .addServer('https://4100.nezumi.asia/')
     .addServer('https://fine-deer-attire.cyclic.app/')
     .build();
 

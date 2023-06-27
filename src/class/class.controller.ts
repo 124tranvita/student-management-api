@@ -41,12 +41,13 @@ export class ClassController {
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll() {
-    const classrooms = await this.service.findAll();
+  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    const classrooms = await this.service.findAll(page, limit);
+    const count = await this.service.count();
 
     return {
       status: 'success',
-      grossCnt: classrooms.length,
+      grossCnt: count,
       data: classrooms,
     };
   }
@@ -113,7 +114,7 @@ export class ClassController {
 
     return {
       status: 'success',
-      data: {},
+      data: classroom,
     };
   }
 
