@@ -59,6 +59,12 @@ export class Student {
 
   @Prop({
     required: true,
+    default: '0',
+  })
+  isAssigned: string;
+
+  @Prop({
+    required: true,
   })
   createdAt: Date;
 

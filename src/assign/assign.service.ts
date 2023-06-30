@@ -9,6 +9,8 @@ import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Student } from 'src/student/schemas/student.schema';
 import { Assign } from './schemas/assign.schema';
 import { AssignDto } from './dto/assign.dto';
+import { AssignStudentMentor } from './schemas/assign-student-mentor.schema';
+import { CreateAssignStudentMentorDto } from './dto/assign-student-mentor.dto';
 
 @Injectable()
 export class AssignService {
@@ -16,6 +18,8 @@ export class AssignService {
     @InjectModel(Classroom.name) private classModel: Model<Classroom>,
     @InjectModel(Student.name) private studentModel: Model<Student>,
     @InjectModel(Assign.name) private assignModel: Model<Assign>,
+    @InjectModel(AssignStudentMentor.name)
+    private assignStudentMentorModel: Model<AssignStudentMentor>,
   ) {}
 
   /** Assign student to class */
@@ -138,6 +142,76 @@ export class AssignService {
         { $push: { mentors: mentorId } },
         { new: true },
       )
+      .exec();
+  }
+
+  /** Create record when assign a student to a mentor
+   * @param createAssignStudentMentorDto - Create a assign student to mentor record Dto
+   * @returns - A new assigned document
+   */
+  async createAssignStudentMentorRecord(
+    createAssignStudentMentorDto: CreateAssignStudentMentorDto,
+  ) {
+    const result = await this.assignStudentMentorModel
+      .find({
+        student: { $eq: createAssignStudentMentorDto.student },
+      })
+      .exec();
+
+    if (result[0]) {
+      throw new BadRequestException(
+        `Student with id ${createAssignStudentMentorDto.student} is already assigned to mentor`,
+      );
+    }
+
+    return await new this.assignStudentMentorModel({
+      ...createAssignStudentMentorDto,
+      assignedAt: new Date(),
+    }).save();
+  }
+
+  /** Delete assign record when unassign a student from a mentor
+   * @param id - Assign record Id
+   * @param studentId - Student's Id
+   * @param mentorId - Mentor's Id
+   * @returns - A new assigned document
+   */
+  async delAssignStudentMentorRecord(id: Types.ObjectId) {
+    return await this.assignStudentMentorModel.findByIdAndDelete(id).exec();
+  }
+
+  /** Find all student assgined to mentor record
+   * @param id - Record's Id
+   * @returns - Founed assgined record document
+   */
+  async findAssignStudentMentorRecord(
+    assignedId: Types.ObjectId,
+    mentorId: Types.ObjectId,
+  ) {
+    return await this.assignStudentMentorModel.findOne({
+      _id: { $eq: assignedId },
+      mentor: { $eq: mentorId },
+    });
+  }
+
+  /** Find all assigned students belong to mentor
+   * @param id - Mentor's Id
+   * @param page - Current Page
+   * @param limit - Limit per page
+   * @returns - List of assigned student documents that belong to mentor's id
+   */
+  async findAllAssignedStudentMentor(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    return await this.assignStudentMentorModel
+      .find({
+        mentor: { $eq: id },
+      })
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ assignedAt: -1 })
       .exec();
   }
 }

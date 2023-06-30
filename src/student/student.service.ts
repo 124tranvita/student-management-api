@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Student, StudentDocument } from './schemas/student.schema';
@@ -63,6 +63,45 @@ export class StudentService {
    */
   async delete(id: Types.ObjectId): Promise<Student> {
     return await this.model.findByIdAndDelete(id).exec();
+  }
+
+  /** Assign mentor to student
+   * @param id - Student's Id
+   * @param mentorId - Mentor's Id
+   * @returns - Update Student document with has belong to mentor
+   */
+  async mentorAssigned(id: Types.ObjectId, mentorId: Types.ObjectId) {
+    return await this.model
+      .findByIdAndUpdate(
+        id,
+        {
+          mentor: mentorId,
+          isAssigned: '1',
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /** Unassign mentor to student
+   * @param id - Student's Id
+   * @param mentorId - Mentor's Id
+   * @returns - Update Student document with has belong to mentor
+   */
+  async mentorUnassigned(id: Types.ObjectId, mentorId: Types.ObjectId) {
+    return await this.model
+      .findOneAndUpdate(
+        {
+          _id: { $eq: id },
+          mentor: { $eq: mentorId },
+        },
+        {
+          $unset: { mentor: 1 },
+          $set: { isAssigned: '0' },
+        },
+        { new: true },
+      )
+      .exec();
   }
 
   // Getting the numbers of documents stored in database

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -124,6 +124,50 @@ export class MentorService {
           select: { name: 1, studentId: 1 },
         },
       })
+      .exec();
+  }
+
+  /** Assign student to mentor
+   * @param id - Mentor's Id
+   * @param studentId - Student's Id
+   * @returns - Update Mentor document with has belong to mentor
+   */
+  async studentAssigned(id: Types.ObjectId, studentId: Types.ObjectId) {
+    const mentor = this.model.find({
+      _id: id,
+      students: { $nin: [studentId] },
+    });
+
+    if (mentor) {
+      throw new BadRequestException(
+        `Student with id ${studentId} is already assigned to this mentor`,
+      );
+    }
+    return await this.model
+      .findByIdAndUpdate(
+        id,
+        {
+          $push: { students: studentId },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /** Unassign student from mentor
+   * @param id - Mentor's Id
+   * @param studentId - Student's Id
+   * @returns - Update Mentor document with has belong to mentor
+   */
+  async studentUnassigned(id: Types.ObjectId, studentId: Types.ObjectId) {
+    return await this.model
+      .findByIdAndUpdate(
+        id,
+        {
+          $pull: { students: studentId },
+        },
+        { new: true },
+      )
       .exec();
   }
 
