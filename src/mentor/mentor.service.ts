@@ -133,10 +133,12 @@ export class MentorService {
    * @returns - Update Mentor document with has belong to mentor
    */
   async studentAssigned(id: Types.ObjectId, studentId: Types.ObjectId) {
-    const mentor = this.model.find({
-      _id: id,
-      students: { $nin: [studentId] },
-    });
+    const mentor = await this.model
+      .findOne({
+        _id: id,
+        students: { $in: [studentId] },
+      })
+      .exec();
 
     if (mentor) {
       throw new BadRequestException(

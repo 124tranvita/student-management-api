@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Student, StudentDocument } from './schemas/student.schema';
@@ -101,6 +101,20 @@ export class StudentService {
         },
         { new: true },
       )
+      .exec();
+  }
+
+  /** Get all unassign students
+   * @param page - Current page
+   * @param limit - Limi per page
+   * @returns - List of all students that not assigned to any mentor yet
+   */
+  async findAllUnassignStud(page: number, limit: number) {
+    return this.model
+      .find({ mentor: { $eq: undefined } })
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
       .exec();
   }
 

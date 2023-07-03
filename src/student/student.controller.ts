@@ -56,6 +56,27 @@ export class StudentController {
     };
   }
 
+  /** Get all unassign students
+   * @param page - Current page
+   * @param limit - Limi per page
+   * @returns - List of all students that not assigned to any mentor yet
+   */
+  @Get('unassign')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllUnassignStud(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const students = await this.service.findAllUnassignStud(page, limit);
+
+    return {
+      status: 'success',
+      data: students,
+      grossCnt: students.length,
+    };
+  }
+
   /** Get student
    * @param id - student's Id
    * @returns - Founded student document by Id

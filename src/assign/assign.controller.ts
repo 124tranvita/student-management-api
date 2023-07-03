@@ -7,7 +7,6 @@ import {
   NotFoundException,
   Param,
   Patch,
-  Post,
   Query,
 } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -81,6 +80,18 @@ export class AssignController {
     @Param('id') id: Types.ObjectId,
     @Body() assignStudentMentorDto: AssignStudentMentorDto,
   ) {
+    const assinged = await this.assignService.findAllAssignedStudentMentor(
+      id,
+      1,
+      26,
+    );
+
+    if (assinged && assinged.length > 10) {
+      throw new BadRequestException(
+        `Mentor has reach the limit of assignment (25 students)`,
+      );
+    }
+
     const studentIds = assignStudentMentorDto.studentIds;
 
     const result = await Promise.all(
@@ -109,7 +120,7 @@ export class AssignController {
     );
 
     return {
-      message: 'success',
+      status: 'success',
       data: result,
     };
   }
@@ -128,7 +139,7 @@ export class AssignController {
   ) {
     const assignedIds = unassignStudentMentorDto.assignedIds;
 
-    const result = Promise.all(
+    const result = await Promise.all(
       assignedIds.map(async (assignedId) => {
         const record = await this.assignService.findAssignStudentMentorRecord(
           assignedId,
@@ -162,7 +173,7 @@ export class AssignController {
     );
 
     return {
-      message: 'success',
+      status: 'success',
       data: result,
     };
   }
@@ -173,7 +184,7 @@ export class AssignController {
    * @param limit - Limit per page
    * @returns - List of assigned student documents that belong to mentor's id
    */
-  @Get('student-to-mentor')
+  @Get('mentor/student-to-mentor')
   @ApiOkResponse()
   @HttpCode(200)
   async findAllAssignedStudentMentor(
@@ -188,7 +199,7 @@ export class AssignController {
     );
 
     return {
-      message: 'success',
+      status: 'success',
       data: result,
       grossCnt: result.length,
     };
