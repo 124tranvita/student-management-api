@@ -67,13 +67,19 @@ export class ClassroomService {
     return await this.model.findByIdAndDelete(id).exec();
   }
 
-  /** Find Classroom for assign table list
-   * @param id - Current logged in mentor id
+  /*************************
+   *
+   *  MENTOR ASSIGNMENT
+   *
+   ************************* */
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
-   * @returns - List of Classroom that unssigned to logged in menter yet
+   * @returns - List of Classroom that unssigned to mentor
    */
-  async findClassroomList(
+  async findAllUnassignedClassroomMentor(
     id: Types.ObjectId,
     page: number,
     limit: number,
@@ -83,7 +89,63 @@ export class ClassroomService {
       .skip((page - 1) * limit)
       .limit(limit * 1)
       .sort({ createdAt: -1 })
-      .select('name description languages')
+      .select('name description languages createdAt cover')
+      .exec();
+  }
+
+  /** Find all classrooms that assigned to mentor
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  async findAllAssignedClassroomMentor(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
+    return await this.model
+      .find({ mentors: { $in: [id] } })
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
+      .select('name description languages createdAt cover')
+      .exec();
+  }
+
+  /** Assign mentor to classroom
+   * @param id - Classroom Id
+   * @param mentorId - Current logged in mentor Id
+   * @returns - Classroom which current logged in mentor is assigned
+   */
+  async assignMentor(
+    id: Types.ObjectId,
+    mentorId: Types.ObjectId,
+  ): Promise<ClassroomDocument> {
+    return await this.model
+      .findOneAndUpdate(
+        { _id: id },
+        { $push: { mentors: mentorId } },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /** Assign mentor to classroom
+   * @param id - Classroom Id
+   * @param mentorId - Current logged in mentor Id
+   * @returns - Classroom which current logged in mentor is assigned
+   */
+  async unassignMentor(
+    id: Types.ObjectId,
+    mentorId: Types.ObjectId,
+  ): Promise<Classroom> {
+    return await this.model
+      .findOneAndUpdate(
+        { _id: id },
+        { $pop: { mentors: mentorId } },
+        { new: true },
+      )
       .exec();
   }
 
@@ -149,24 +211,6 @@ export class ClassroomService {
         },
       })
       .populate({ path: 'studentCnt' });
-  }
-
-  /** Assign mentor to classroom
-   * @param id - Classroom Id
-   * @param mentorId - Current logged in mentor Id
-   * @returns - Classroom which current logged in mentor is assigned
-   */
-  async assignMentor(
-    id: Types.ObjectId,
-    mentorId: Types.ObjectId,
-  ): Promise<Classroom> {
-    return await this.model
-      .findOneAndUpdate(
-        { _id: id },
-        { $push: { mentors: mentorId } },
-        { new: true },
-      )
-      .exec();
   }
 
   /** Find if current logged mentor is already existing in classroom

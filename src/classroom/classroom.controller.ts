@@ -52,6 +52,33 @@ export class ClassroomController {
     };
   }
 
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  @Get('unassign-mentor/?')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllUnassignedClassroomMentor(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classrooms = await this.service.findAllUnassignedClassroomMentor(
+      id,
+      page,
+      limit,
+    );
+
+    return {
+      status: 'success',
+      grossCnt: classrooms.length,
+      data: classrooms,
+    };
+  }
+
   /** Get classroom with number of assigned student and classroom
    * @param id - Classroom's Id
    * @returns - Founded classroom by Id with count of assigned students and classrooms
@@ -118,28 +145,34 @@ export class ClassroomController {
     };
   }
 
-  /** Find Classroom for assign table list
-   * @param id - Current logged in mentor id
+  /*************************
+   *
+   *  MENTOR ASSIGNMENT
+   *
+   ************************* */
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
-   * @returns - List of Classroom that unssigned to logged in menter yet
+   * @returns - List of Classroom that unssigned to mentor
    */
-  @Get('list/?')
+  @Get('assign-mentor/?')
   @ApiOkResponse()
   @HttpCode(200)
-  async findClassroomList(
+  async findAllAssignedClassroomMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    const classrooms = await this.service.findClassroomList(id, page, limit);
-    const count = await this.service.countByCondition({
-      mentors: { $nin: [id] },
-    });
-
+    const classrooms = await this.service.findAllAssignedClassroomMentor(
+      id,
+      page,
+      limit,
+    );
     return {
       status: 'success',
-      grossCnt: count,
+      grossCnt: classrooms.length,
       data: classrooms,
     };
   }

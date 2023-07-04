@@ -37,12 +37,20 @@ export class MentorService {
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
-    return await this.model
-      .find({ _id: { $ne: id } })
-      .skip((page - 1) * limit)
-      .limit(limit * 1)
-      .sort({ createdAt: -1 })
-      .exec();
+    const results = this.model.aggregate([
+      { $match: { _id: { $ne: new Types.ObjectId(id) } } },
+      {
+        $addFields: {
+          assignedStudent: { $size: { $ifNull: ['$students', []] } },
+          assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+      { $project: { password: 0 } },
+    ]);
+    return results;
   }
 
   /** Get mentor/admin
@@ -128,14 +136,14 @@ export class MentorService {
   }
 
   /** Assign student to mentor
-   * @param id - Mentor's Id
+   * @param mentorId - Mentor's Id
    * @param studentId - Student's Id
    * @returns - Update Mentor document with has belong to mentor
    */
-  async studentAssigned(id: Types.ObjectId, studentId: Types.ObjectId) {
+  async assignStudent(mentorId: Types.ObjectId, studentId: Types.ObjectId) {
     const mentor = await this.model
       .findOne({
-        _id: id,
+        _id: mentorId,
         students: { $in: [studentId] },
       })
       .exec();
@@ -147,7 +155,7 @@ export class MentorService {
     }
     return await this.model
       .findByIdAndUpdate(
-        id,
+        mentorId,
         {
           $push: { students: studentId },
         },
@@ -157,16 +165,71 @@ export class MentorService {
   }
 
   /** Unassign student from mentor
-   * @param id - Mentor's Id
+   * @param mentorId - Mentor's Id
    * @param studentId - Student's Id
    * @returns - Update Mentor document with has belong to mentor
    */
-  async studentUnassigned(id: Types.ObjectId, studentId: Types.ObjectId) {
+  async unassignStudent(mentorId: Types.ObjectId, studentId: Types.ObjectId) {
     return await this.model
       .findByIdAndUpdate(
-        id,
+        mentorId,
         {
           $pull: { students: studentId },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /********************************
+   *
+   *  CLASSROOM -> MENTOR ASSIGNMENT
+   *
+   ********************************/
+
+  /** Assign classroom to mentor
+   * @param mentorId - Mentor's Id
+   * @param classroomId - Classroom's Id
+   * @returns - Update Mentor document with has belong to mentor
+   */
+  async assignClassroom(mentorId: Types.ObjectId, classroomId: Types.ObjectId) {
+    const mentor = await this.model
+      .findOne({
+        _id: mentorId,
+        classrooms: { $in: [classroomId] },
+      })
+      .exec();
+
+    if (mentor) {
+      throw new BadRequestException(
+        `Student with id ${classroomId} is already assigned to this mentor`,
+      );
+    }
+    return await this.model
+      .findByIdAndUpdate(
+        mentorId,
+        {
+          $push: { classrooms: classroomId },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  /** Unassign classroom from mentor
+   * @param mentorId - Mentor's Id
+   * @param classroomId - Classroom's Id
+   * @returns - Update Mentor document with has belong to mentor
+   */
+  async unassignClassroom(
+    mentorId: Types.ObjectId,
+    classroomId: Types.ObjectId,
+  ) {
+    return await this.model
+      .findByIdAndUpdate(
+        mentorId,
+        {
+          $pull: { students: classroomId },
         },
         { new: true },
       )

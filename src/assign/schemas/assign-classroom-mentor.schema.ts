@@ -1,10 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
+import {
+  Classroom,
+  ClassroomDocument,
+} from 'src/classroom/schemas/classroom.schema';
 import { Mentor, MentorDocument } from 'src/mentor/schemas/mentor.schema';
-import { Student, StudentDocument } from 'src/student/schemas/student.schema';
 
-export type AssignStudentMentorDocument = HydratedDocument<AssignStudentMentor>;
+export type AssignClassroomMentorDocument =
+  HydratedDocument<AssignClassroomMentor>;
 
 @Schema({
   toJSON: {
@@ -12,7 +16,7 @@ export type AssignStudentMentorDocument = HydratedDocument<AssignStudentMentor>;
     virtuals: true,
   },
 })
-export class AssignStudentMentor {
+export class AssignClassroomMentor {
   @Prop({
     required: true,
   })
@@ -21,22 +25,22 @@ export class AssignStudentMentor {
   @Prop({
     required: true,
   })
-  studentId: string;
+  classroomName: string;
+
+  @Prop()
+  classroomDesc: string;
 
   @Prop({
     required: true,
   })
-  studentName: string;
+  classroomLanguages: string[];
 
   @Prop({
     required: true,
+    default:
+      'https://sonomalibrary.org/sites/default/files/styles/large/public/images/youthcoding.png',
   })
-  studentStatus: string;
-
-  @Prop({
-    required: true,
-  })
-  studentAvatar: string;
+  classroomCover: string;
 
   @Prop({
     required: true,
@@ -53,14 +57,15 @@ export class AssignStudentMentor {
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
+    ref: 'Classroom',
     required: true,
   })
-  @Type(() => Student)
-  student: StudentDocument;
+  @Type(() => Classroom)
+  classroom: ClassroomDocument;
 }
 
-const AssignStudentMentorSchema =
-  SchemaFactory.createForClass(AssignStudentMentor);
+const AssignClassroomMentorSchema = SchemaFactory.createForClass(
+  AssignClassroomMentor,
+);
 
-export { AssignStudentMentorSchema };
+export { AssignClassroomMentorSchema };

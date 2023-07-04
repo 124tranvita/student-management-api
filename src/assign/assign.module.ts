@@ -16,6 +16,10 @@ import { AssignController } from './assign.controller';
 import { Assign, AssingSchema } from './schemas/assign.schema';
 import { AssignService } from './assign.service';
 import { StudentModule } from 'src/student/student.module';
+import {
+  AssignClassroomMentor,
+  AssignClassroomMentorSchema,
+} from './schemas/assign-classroom-mentor.schema';
 
 @Module({
   imports: [
@@ -27,6 +31,9 @@ import { StudentModule } from 'src/student/student.module';
     MongooseModule.forFeature([{ name: Assign.name, schema: AssingSchema }]),
     MongooseModule.forFeature([
       { name: AssignStudentMentor.name, schema: AssignStudentMentorSchema },
+    ]),
+    MongooseModule.forFeature([
+      { name: AssignClassroomMentor.name, schema: AssignClassroomMentorSchema },
     ]),
     ClassroomModule,
     MentorModule,

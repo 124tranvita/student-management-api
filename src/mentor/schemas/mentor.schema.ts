@@ -49,8 +49,7 @@ export class Mentor {
   status: string;
 
   @Prop({
-    default:
-      'https://www.iconarchive.com/download/i106655/diversity-avatars/avatars/native-man.512.png',
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
   })
   avatar: string;
 
@@ -73,7 +72,7 @@ export class Mentor {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' })
   @Type(() => Classroom)
-  classes: Classroom[];
+  classrooms: Classroom[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
   @Type(() => Student)
@@ -105,6 +104,35 @@ MentorSchema.virtual('events', {
   ref: 'Event',
   foreignField: 'mentor',
   localField: '_id',
+});
+
+/** STATIC FUNCTIONS */
+MentorSchema.statics.countStudent = async function (id) {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        _id: id,
+      },
+    },
+    {
+      $addFields: {
+        totalMentors: { $size: '$students' },
+      },
+    },
+  ]);
+
+  return stats;
+};
+
+/** Prehook */
+MentorSchema.post(/^findOneAnd/, async function (doc, next) {
+  // const result = await doc.constructor.countStudent(doc._id);
+  // if (result && result.length > 0) {
+  //   doc = result[0];
+  // }
+  // console.log(doc);
+  console.log(doc);
+  next();
 });
 
 export { MentorSchema };

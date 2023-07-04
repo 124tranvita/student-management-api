@@ -66,14 +66,14 @@ export class StudentService {
   }
 
   /** Assign mentor to student
-   * @param id - Student's Id
+   * @param studentId - Student's Id
    * @param mentorId - Mentor's Id
    * @returns - Update Student document with has belong to mentor
    */
-  async mentorAssigned(id: Types.ObjectId, mentorId: Types.ObjectId) {
+  async assignMentor(studentId: Types.ObjectId, mentorId: Types.ObjectId) {
     return await this.model
       .findByIdAndUpdate(
-        id,
+        studentId,
         {
           mentor: mentorId,
           isAssigned: '1',
@@ -84,15 +84,15 @@ export class StudentService {
   }
 
   /** Unassign mentor to student
-   * @param id - Student's Id
+   * @param studentId - Student's Id
    * @param mentorId - Mentor's Id
    * @returns - Update Student document with has belong to mentor
    */
-  async mentorUnassigned(id: Types.ObjectId, mentorId: Types.ObjectId) {
+  async unassignMentor(studentId: Types.ObjectId, mentorId: Types.ObjectId) {
     return await this.model
       .findOneAndUpdate(
         {
-          _id: { $eq: id },
+          _id: { $eq: studentId },
           mentor: { $eq: mentorId },
         },
         {

@@ -5,25 +5,31 @@ import { Types } from 'mongoose';
 export class BaseAssignStudentMentorDto {
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Student Id',
   })
   studentId: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Student name',
   })
   studentName: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Student status',
   })
   studentStatus: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Student avatar',
+  })
+  studentAvatar: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Mentor name',
   })
   mentorName: string;
 

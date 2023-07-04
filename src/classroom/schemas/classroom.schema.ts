@@ -33,8 +33,12 @@ export class Classroom {
   })
   createdAt: Date;
 
-  @Prop()
-  image: string;
+  @Prop({
+    required: true,
+    default:
+      'https://sonomalibrary.org/sites/default/files/styles/large/public/images/youthcoding.png',
+  })
+  cover: string;
 
   // Class belong one mentor
   @Prop({
@@ -85,6 +89,35 @@ ClassroomSchema.virtual('assigned', {
   ref: 'Assign',
   foreignField: 'classroom',
   localField: '_id',
+});
+
+/** STATIC FUNCTIONS */
+ClassroomSchema.statics.countStudent = async function (id) {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        _id: id,
+      },
+    },
+    {
+      $addFields: {
+        totalMentors: { $size: '$mentors' },
+      },
+    },
+  ]);
+
+  return stats;
+};
+
+/** Prehook */
+ClassroomSchema.pre('find', async function (next) {
+  // const result = await doc.constructor.countStudent(doc._id);
+  // if (result && result.length > 0) {
+  //   doc = result[0];
+  // }
+  // console.log(doc);
+  console.log(this);
+  next();
 });
 
 export { ClassroomSchema };

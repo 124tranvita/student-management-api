@@ -20,6 +20,12 @@ export class AssignDto {
   classId: Types.ObjectId;
 }
 
+/********************************
+ *
+ *  STUDENT -> MENTOR ASSIGNMENT
+ *
+ ********************************/
+
 export class AssignStudentMentorDto {
   @IsNotEmpty()
   @IsArray()
@@ -32,6 +38,34 @@ export class AssignStudentMentorDto {
 }
 
 export class UnassignStudentMentorDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ApiProperty({
+    description: 'Assinged record _id.',
+    type: [Types.ObjectId],
+    format: 'ObjectId',
+  })
+  assignedIds: [Types.ObjectId];
+}
+
+/********************************
+ *
+ *  CLASSROOM -> MENTOR ASSIGNMENT
+ *
+ ********************************/
+
+export class AssignClassroomMentorDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ApiProperty({
+    description: 'Classroom _id.',
+    type: [Types.ObjectId],
+    format: 'ObjectId',
+  })
+  classroomIds: [Types.ObjectId];
+}
+
+export class UnassignClassroomMentorDto {
   @IsNotEmpty()
   @IsArray()
   @ApiProperty({

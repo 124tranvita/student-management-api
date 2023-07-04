@@ -36,6 +36,11 @@ export class BaseClassroomDto {
   })
   languages: string[];
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false, default: 'defaut-profile.jpg' })
+  cover?: string;
+
   @ApiProperty({
     description: 'Classroom created date',
     type: Date,
