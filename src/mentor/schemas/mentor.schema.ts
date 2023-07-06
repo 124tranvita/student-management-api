@@ -131,7 +131,7 @@ MentorSchema.post(/^findOneAnd/, async function (doc, next) {
   //   doc = result[0];
   // }
   // console.log(doc);
-  console.log(doc);
+  // console.log(doc);
   next();
 });
 

@@ -243,7 +243,7 @@ export class AssignController {
     const assinged = await this.assignService.findAllAssignedClassroomMentor(
       mentorId,
       1,
-      10,
+      11,
     );
 
     if (assinged && assinged.length > 10) {
@@ -275,6 +275,7 @@ export class AssignController {
           classroomDesc: classroom.description,
           classroomLanguages: classroom.languages,
           classroomCover: classroom.cover,
+          mentorName: mentor.name,
           mentor: mentor.id,
           classroom: classroom.id,
         };
@@ -328,6 +329,8 @@ export class AssignController {
           record.classroom._id,
         );
 
+        console.log({ mentor });
+
         if (!classroom || !mentor) {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
@@ -344,7 +347,7 @@ export class AssignController {
     };
   }
 
-  /** Find all assigned students belong to mentor
+  /** Find all assigned classrooms belong to mentor
    * @param id - Mentor's Id
    * @param page - Current Page
    * @param limit - Limit per page

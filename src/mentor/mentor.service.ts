@@ -37,7 +37,7 @@ export class MentorService {
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
-    const results = this.model.aggregate([
+    const results = await this.model.aggregate([
       { $match: { _id: { $ne: new Types.ObjectId(id) } } },
       {
         $addFields: {
@@ -71,9 +71,23 @@ export class MentorService {
     updateMentorDto: UpdateMentorDto,
   ): Promise<MentorDocument> {
     return await this.model
-      .findByIdAndUpdate(id, updateMentorDto, {
-        new: true,
-      })
+      .findByIdAndUpdate(
+        id,
+        [
+          {
+            $set: updateMentorDto,
+          },
+          {
+            $addFields: {
+              assignedStudent: { $size: { $ifNull: ['$students', []] } },
+              assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
+            },
+          },
+        ],
+        {
+          new: true,
+        },
+      )
       .exec();
   }
 
@@ -202,7 +216,7 @@ export class MentorService {
 
     if (mentor) {
       throw new BadRequestException(
-        `Student with id ${classroomId} is already assigned to this mentor`,
+        `Classroom with id ${classroomId} is already assigned to this mentor`,
       );
     }
     return await this.model
@@ -229,7 +243,7 @@ export class MentorService {
       .findByIdAndUpdate(
         mentorId,
         {
-          $pull: { students: classroomId },
+          $pull: { classrooms: classroomId },
         },
         { new: true },
       )

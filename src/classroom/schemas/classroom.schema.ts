@@ -116,7 +116,7 @@ ClassroomSchema.pre('find', async function (next) {
   //   doc = result[0];
   // }
   // console.log(doc);
-  console.log(this);
+  // console.log(this);
   next();
 });
 

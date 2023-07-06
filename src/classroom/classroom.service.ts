@@ -84,13 +84,19 @@ export class ClassroomService {
     page: number,
     limit: number,
   ): Promise<Classroom[]> {
-    return await this.model
-      .find({ mentors: { $nin: [id] } })
-      .skip((page - 1) * limit)
-      .limit(limit * 1)
-      .sort({ createdAt: -1 })
-      .select('name description languages createdAt cover')
-      .exec();
+    const results = await this.model.aggregate([
+      { $match: { mentors: { $nin: [new Types.ObjectId(id)] } } },
+      {
+        $addFields: {
+          assginedMentor: { $size: { $ifNull: ['$mentors', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    return results;
   }
 
   /** Find all classrooms that assigned to mentor
@@ -141,11 +147,7 @@ export class ClassroomService {
     mentorId: Types.ObjectId,
   ): Promise<Classroom> {
     return await this.model
-      .findOneAndUpdate(
-        { _id: id },
-        { $pop: { mentors: mentorId } },
-        { new: true },
-      )
+      .findOneAndUpdate(id, { $pull: { mentors: mentorId } }, { new: true })
       .exec();
   }
 

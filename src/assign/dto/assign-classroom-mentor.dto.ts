@@ -29,6 +29,12 @@ export class BaseAssignClassroomMentorDto {
 
   @IsNotEmpty()
   @ApiProperty({
+    description: 'Mentor name',
+  })
+  mentorName: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
     description: 'Mentor Id',
   })
   mentor: Types.ObjectId;
