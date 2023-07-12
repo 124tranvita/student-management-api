@@ -25,27 +25,39 @@ export class AssignClassroomMentor {
   @Prop({
     required: true,
   })
-  classroomName: string;
+  name: string;
 
   @Prop()
-  classroomDesc: string;
+  description?: string;
 
   @Prop({
     required: true,
   })
-  classroomLanguages: string[];
+  languages: string[];
 
   @Prop({
     required: true,
     default:
       'https://sonomalibrary.org/sites/default/files/styles/large/public/images/youthcoding.png',
   })
-  classroomCover: string;
+  cover: string;
+
+  @Prop({
+    required: true,
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
+  })
+  avatar?: string;
 
   @Prop({
     required: true,
   })
-  mentorName: string;
+  assignee: string;
+
+  @Prop()
+  email?: string;
+
+  @Prop()
+  status?: string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

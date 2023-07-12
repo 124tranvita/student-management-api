@@ -29,12 +29,17 @@ export class ClassroomService {
    * @returns - List of all classroom documents
    */
   async findAll(page: number, limit: number): Promise<Classroom[]> {
-    return await this.model
-      .find()
-      .skip((page - 1) * limit)
-      .limit(limit * 1)
-      .sort({ createdAt: -1 })
-      .exec();
+    return await this.model.aggregate([
+      {
+        $addFields: {
+          assignedStudent: { $size: { $ifNull: ['$students', []] } },
+          assignedMentor: { $size: { $ifNull: ['$mentors', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+    ]);
   }
 
   /** Get classroom
@@ -55,7 +60,22 @@ export class ClassroomService {
     updateClassroomDto: UpdateClassroomDto,
   ): Promise<Classroom> {
     return await this.model
-      .findByIdAndUpdate(id, updateClassroomDto, { new: true })
+      .findByIdAndUpdate(
+        id,
+        [
+          {
+            $set: updateClassroomDto,
+          },
+          {
+            $addFields: {
+              assignedStudent: { $size: { $ifNull: ['$students', []] } },
+              assignedMentor: { $size: { $ifNull: ['$mentors', []] } },
+            },
+          },
+          { $project: { password: 0 } },
+        ],
+        { new: true },
+      )
       .exec();
   }
 
@@ -79,12 +99,12 @@ export class ClassroomService {
    * @param limit - Limit per page
    * @returns - List of Classroom that unssigned to mentor
    */
-  async findAllUnassignedClassroomMentor(
+  async findAllUnassignClassroomMentor(
     id: Types.ObjectId,
     page: number,
     limit: number,
   ): Promise<Classroom[]> {
-    const results = await this.model.aggregate([
+    return await this.model.aggregate([
       { $match: { mentors: { $nin: [new Types.ObjectId(id)] } } },
       {
         $addFields: {
@@ -95,8 +115,6 @@ export class ClassroomService {
       { $limit: limit * 1 },
       { $sort: { createdAt: -1 } },
     ]);
-
-    return results;
   }
 
   /** Find all classrooms that assigned to mentor
@@ -213,6 +231,35 @@ export class ClassroomService {
         },
       })
       .populate({ path: 'studentCnt' });
+  }
+
+  /*************************
+   *
+   *  STUDENT ASSIGNMENT
+   *
+   ************************* */
+  /** Find all classrooms that unassign to student's id
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  async findAllUnassignClassroomStudent(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
+    return await this.model.aggregate([
+      { $match: { students: { $nin: [new Types.ObjectId(id)] } } },
+      {
+        $addFields: {
+          assginedStudents: { $size: { $ifNull: ['$students', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+    ]);
   }
 
   /** Find if current logged mentor is already existing in classroom

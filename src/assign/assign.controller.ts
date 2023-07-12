@@ -34,47 +34,9 @@ export class AssignController {
     private readonly studentService: StudentService,
   ) {}
 
-  // /** Assign mentor to classrooms
-  //  * @param mentorId - Current logged in mentor Id
-  //  * @param classIds - List of classroom Id
-  //  * @returns - Classroom which current logged in mentor is assigned
-  //  */
-  // @Patch('to-class/:mentorId')
-  // @ApiOkResponse()
-  // @HttpCode(200)
-  // async assignMento(
-  //   @Param('mentorId') mentorId: Types.ObjectId,
-  //   @Body('classIds') classIds: Types.ObjectId[],
-  // ) {
-  //   const classrooms = await Promise.all(
-  //     classIds.map(async (classId) => {
-  //       const isAssigned = await this.classroomService.findExistingDoc(
-  //         new Types.ObjectId(classId),
-  //         mentorId,
-  //       );
-
-  //       if (isAssigned && isAssigned.length > 0) {
-  //         throw new BadRequestException(
-  //           `Mentor with id ${mentorId} is already assigned to classroom with id ${classId}`,
-  //         );
-  //       }
-
-  //       return await this.classroomService.assignMentor(
-  //         new Types.ObjectId(classId),
-  //         mentorId,
-  //       );
-  //     }),
-  //   );
-
-  //   return {
-  //     status: 'success',
-  //     data: classrooms,
-  //   };
-  // }
-
   /********************************
    *
-   *  STUDENT -> MENTOR ASSIGNMENT
+   *  MENTOR ASSIGNMENT: STUDENT
    *
    ********************************/
 
@@ -223,9 +185,7 @@ export class AssignController {
   }
 
   /********************************
-   *
-   *  CLASSROOM -> MENTOR ASSIGNMENT
-   *
+   * MENTOR ASSIGNMENT: CLASSROOM
    ********************************/
 
   /** Assign a Classroom to mentor
@@ -236,12 +196,14 @@ export class AssignController {
   @Patch('mentor/assign-classroom/:mentorId')
   @ApiOkResponse()
   @HttpCode(200)
-  async assignClassroomMentor(
+  async assignMentorClassroom(
     @Param('mentorId') mentorId: Types.ObjectId,
     @Body() assignClassroomMentorDto: AssignClassroomMentorDto,
   ) {
-    const assinged = await this.assignService.findAllAssignedClassroomMentor(
-      mentorId,
+    const assinged = await this.assignService.findAllAssignedMentorClassroom(
+      {
+        mentor: { $eq: mentorId },
+      },
       1,
       11,
     );
@@ -252,7 +214,7 @@ export class AssignController {
       );
     }
 
-    const classroomIds = assignClassroomMentorDto.classroomIds;
+    const classroomIds = assignClassroomMentorDto.selectedIds;
 
     const result = await Promise.all(
       classroomIds.map(async (classroomId) => {
@@ -271,16 +233,19 @@ export class AssignController {
         }
 
         const createAssignClassroomMentorDto: CreateAssignClassroomMentorDto = {
-          classroomName: classroom.name,
-          classroomDesc: classroom.description,
-          classroomLanguages: classroom.languages,
-          classroomCover: classroom.cover,
-          mentorName: mentor.name,
+          name: classroom.name,
+          description: classroom.description,
+          languages: classroom.languages,
+          cover: classroom.cover,
+          assignee: mentor.name,
+          email: mentor.email,
+          status: mentor.status,
+          avatar: mentor.avatar,
           mentor: mentor.id,
           classroom: classroom.id,
         };
 
-        return await this.assignService.createAssignClassroomMentorRecord(
+        return await this.assignService.createAssignMentorClassroomRecord(
           createAssignClassroomMentorDto,
         );
       }),
@@ -300,7 +265,7 @@ export class AssignController {
   @Patch('mentor/unassign-classroom/:mentorId')
   @ApiOkResponse()
   @HttpCode(200)
-  async unassignClassroomMentor(
+  async unassignMentorClassroom(
     @Param('mentorId') mentorId: Types.ObjectId,
     @Body() unassignClassroomMentorDto: UnassignClassroomMentorDto,
   ) {
@@ -308,9 +273,11 @@ export class AssignController {
 
     const result = await Promise.all(
       assignedIds.map(async (assignedId) => {
-        const record = await this.assignService.findAssignClassroomMentorRecord(
-          assignedId,
-          mentorId,
+        const record = await this.assignService.findAssignMentorClassroomRecord(
+          {
+            _id: { $eq: assignedId },
+            mentor: { $eq: mentorId },
+          },
         );
 
         if (!record) {
@@ -329,13 +296,11 @@ export class AssignController {
           record.classroom._id,
         );
 
-        console.log({ mentor });
-
         if (!classroom || !mentor) {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        return await this.assignService.delAssignClassroomMentorRecord(
+        return await this.assignService.delAssignMentorClassroomRecord(
           assignedId,
         );
       }),
@@ -356,13 +321,170 @@ export class AssignController {
   @Get('mentor/classroom-to-mentor')
   @ApiOkResponse()
   @HttpCode(200)
+  async findAllAssignedMentorClassroom(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const result = await this.assignService.findAllAssignedMentorClassroom(
+      {
+        mentor: id,
+      },
+      page,
+      limit,
+    );
+
+    return {
+      status: 'success',
+      data: result,
+      grossCnt: result.length,
+    };
+  }
+  /********************************
+   * CLASSROOM ASSIGNMENT: MENTOR
+   ********************************/
+
+  /** Assign a Classroom to mentor
+   * @param id - Mentor's id
+   * @param assignClassroomMentorDto - Assign Classroom to mentor record Dto
+   * @returns - A new assigned document
+   */
+  @Patch('classroom/assign-mentor/:classroomId')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async assignClassroomMentor(
+    @Param('classroomId') classroomId: Types.ObjectId,
+    @Body() assignClassroomMentorDto: AssignClassroomMentorDto,
+  ) {
+    const assinged = await this.assignService.findAllAssignedMentorClassroom(
+      {
+        classroom: { $eq: classroomId },
+      },
+      1,
+      11,
+    );
+
+    if (assinged && assinged.length > 10) {
+      throw new BadRequestException(
+        `Mentor has reach the limit of assignment (10 classrooms)`,
+      );
+    }
+
+    const mentorIds = assignClassroomMentorDto.selectedIds;
+
+    const result = await Promise.all(
+      mentorIds.map(async (mentorId) => {
+        const classroom = await this.classroomService.assignMentor(
+          classroomId,
+          mentorId,
+        );
+
+        const mentor = await this.mentorService.assignClassroom(
+          mentorId,
+          classroomId,
+        );
+
+        if (!classroom || !mentor) {
+          throw new NotFoundException(`Mentor or Classroom was not found`);
+        }
+
+        const createAssignClassroomMentorDto: CreateAssignClassroomMentorDto = {
+          name: classroom.name,
+          languages: classroom.languages,
+          cover: classroom.cover,
+          email: mentor.email,
+          status: mentor.status,
+          avatar: mentor.avatar,
+          assignee: mentor.name,
+          mentor: mentor.id,
+          classroom: classroom.id,
+        };
+
+        return await this.assignService.createAssignMentorClassroomRecord(
+          createAssignClassroomMentorDto,
+        );
+      }),
+    );
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  /** Unassign a classroom from mentor
+   * @param mentorId - Mentor's id
+   * @param unassignClassroomMentorDto - Assign classroom to mentor record Dto
+   * @returns - A deleted assigned document
+   */
+  @Patch('classroom/unassign-mentor/:classroomId')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async unassignClassroomMentor(
+    @Param('classroomId') classroomId: Types.ObjectId,
+    @Body() unassignClassroomMentorDto: UnassignClassroomMentorDto,
+  ) {
+    const assignedIds = unassignClassroomMentorDto.assignedIds;
+
+    const result = await Promise.all(
+      assignedIds.map(async (assignedId) => {
+        const record = await this.assignService.findAssignMentorClassroomRecord(
+          {
+            _id: { $eq: assignedId },
+            classroom: { $eq: classroomId },
+          },
+        );
+
+        if (!record) {
+          throw new NotFoundException(
+            `Assinged record with id ${assignedId} was not found`,
+          );
+        }
+
+        const classroom = await this.classroomService.unassignMentor(
+          record.classroom._id,
+          record.mentor._id,
+        );
+
+        const mentor = await this.mentorService.unassignClassroom(
+          record.mentor._id,
+          record.classroom._id,
+        );
+
+        if (!classroom || !mentor) {
+          throw new NotFoundException(`Mentor or Student was not found`);
+        }
+
+        return await this.assignService.delAssignMentorClassroomRecord(
+          assignedId,
+        );
+      }),
+    );
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  /** Find all assigned mentor belong to classroom's Id
+   * @param id - Classroom's Id
+   * @param page - Current Page
+   * @param limit - Limit per page
+   * @returns - List of assigned student documents that belong to mentor's id
+   */
+  @Get('classroom/mentor-to-classroom')
+  @ApiOkResponse()
+  @HttpCode(200)
   async findAllAssignedClassroomMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    const result = await this.assignService.findAllAssignedClassroomMentor(
-      id,
+    const result = await this.assignService.findAllAssignedMentorClassroom(
+      {
+        classroom: { $eq: id },
+      },
       page,
       limit,
     );

@@ -1,37 +1,55 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class BaseAssignClassroomMentorDto {
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Name',
   })
-  classroomName: string;
+  name: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Description',
+  })
+  description?: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Languages',
   })
-  classroomDesc: string;
+  languages: string[];
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Cover',
   })
-  classroomLanguages: string[];
+  cover: string;
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Mentor Id',
+    description: 'Assignee',
   })
-  classroomCover: string;
+  assignee: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
-    description: 'Mentor name',
+    description: 'Mentor email',
   })
-  mentorName: string;
+  email?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Mentor status',
+  })
+  status?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Mentor avatar',
+  })
+  avatar?: string;
 
   @IsNotEmpty()
   @ApiProperty({

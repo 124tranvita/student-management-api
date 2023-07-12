@@ -61,12 +61,39 @@ export class ClassroomController {
   @Get('unassign-mentor/?')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAllUnassignedClassroomMentor(
+  async findAllUnassignClassroomMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    const classrooms = await this.service.findAllUnassignedClassroomMentor(
+    const classrooms = await this.service.findAllUnassignClassroomMentor(
+      id,
+      page,
+      limit,
+    );
+
+    return {
+      status: 'success',
+      grossCnt: classrooms.length,
+      data: classrooms,
+    };
+  }
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  @Get('unassign-student/?')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllUnassignClassroomStudent(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classrooms = await this.service.findAllUnassignClassroomStudent(
       id,
       page,
       limit,

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Role } from 'src/auth/roles/role.enum';
 import { MentorDocument, Mentor } from './schemas/mentor.schema';
 import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
@@ -37,7 +38,7 @@ export class MentorService {
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
-    const results = await this.model.aggregate([
+    return await this.model.aggregate([
       { $match: { _id: { $ne: new Types.ObjectId(id) } } },
       {
         $addFields: {
@@ -50,7 +51,6 @@ export class MentorService {
       { $sort: { createdAt: -1 } },
       { $project: { password: 0 } },
     ]);
-    return results;
   }
 
   /** Get mentor/admin
@@ -75,7 +75,14 @@ export class MentorService {
         id,
         [
           {
-            $set: updateMentorDto,
+            $set: {
+              name: updateMentorDto.name,
+              languages: updateMentorDto.languages,
+              education: updateMentorDto.education,
+              avatar: updateMentorDto.avatar,
+              roles: updateMentorDto.roles,
+              status: updateMentorDto.status,
+            },
           },
           {
             $addFields: {
@@ -248,6 +255,36 @@ export class MentorService {
         { new: true },
       )
       .exec();
+  }
+
+  /********************************
+   *
+   *  CLASSROOM ASSIGNMENT -> MENTOR
+   *
+   ********************************/
+
+  /** Find all mentors that not assinged to classroomId yet
+   * @param id - Classroom's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   */
+  async findAllUnassignMentorClassroom(
+    id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    return await this.model.aggregate([
+      {
+        $match: {
+          classrooms: { $nin: [new Types.ObjectId(id)] },
+          roles: { $eq: Role.Mentor },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { name: -1 } },
+      { $project: { password: 0 } },
+    ]);
   }
 
   // Getting the numbers of documents stored in database

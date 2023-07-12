@@ -90,4 +90,10 @@ StudentSchema.virtual('classroom', {
   localField: '_id',
 });
 
+StudentSchema.virtual('mentorInfo', {
+  ref: 'Mentor',
+  foreignField: 'students',
+  localField: '_id',
+});
+
 export { StudentSchema };

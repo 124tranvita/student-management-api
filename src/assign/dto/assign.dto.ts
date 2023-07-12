@@ -62,7 +62,7 @@ export class AssignClassroomMentorDto {
     type: [Types.ObjectId],
     format: 'ObjectId',
   })
-  classroomIds: [Types.ObjectId];
+  selectedIds: [Types.ObjectId];
 }
 
 export class UnassignClassroomMentorDto {
