@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class BaseClassDto {
+export class BaseClassroomDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
@@ -21,7 +21,6 @@ export class BaseClassDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(3)
   @MaxLength(128)
   @ApiProperty({
     description: 'Classroom description',
@@ -36,6 +35,11 @@ export class BaseClassDto {
     type: Array,
   })
   languages: string[];
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false, default: 'defaut-profile.jpg' })
+  cover?: string;
 
   @ApiProperty({
     description: 'Classroom created date',

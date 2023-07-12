@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
-import { Class } from 'src/class/schemas/class.schema';
+import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Student } from 'src/student/schemas/student.schema';
 
 export type MentorDocument = HydratedDocument<Mentor>;
@@ -44,13 +44,12 @@ export class Mentor {
   password: string;
 
   @Prop({
-    default: 'Active',
+    default: '1',
   })
   status: string;
 
   @Prop({
-    default:
-      'https://www.iconarchive.com/download/i106655/diversity-avatars/avatars/native-man.512.png',
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
   })
   avatar: string;
 
@@ -71,9 +70,9 @@ export class Mentor {
   @Prop({ required: true, default: 'mentor' })
   roles: Role;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Class' })
-  @Type(() => Class)
-  classes: Class[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' })
+  @Type(() => Classroom)
+  classrooms: Classroom[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
   @Type(() => Student)
@@ -83,9 +82,16 @@ export class Mentor {
 const MentorSchema = SchemaFactory.createForClass(Mentor);
 
 MentorSchema.virtual('assignedClasses', {
-  ref: 'Class',
+  ref: 'Classroom',
   foreignField: 'mentor',
   localField: '_id',
+});
+
+MentorSchema.virtual('classroomCnt', {
+  ref: 'Classroom',
+  foreignField: 'mentor',
+  localField: '_id',
+  count: true,
 });
 
 MentorSchema.virtual('assignedStudents', {
@@ -98,6 +104,35 @@ MentorSchema.virtual('events', {
   ref: 'Event',
   foreignField: 'mentor',
   localField: '_id',
+});
+
+/** STATIC FUNCTIONS */
+MentorSchema.statics.countStudent = async function (id) {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        _id: id,
+      },
+    },
+    {
+      $addFields: {
+        totalMentors: { $size: '$students' },
+      },
+    },
+  ]);
+
+  return stats;
+};
+
+/** Prehook */
+MentorSchema.post(/^findOneAnd/, async function (doc, next) {
+  // const result = await doc.constructor.countStudent(doc._id);
+  // if (result && result.length > 0) {
+  //   doc = result[0];
+  // }
+  // console.log(doc);
+  // console.log(doc);
+  next();
 });
 
 export { MentorSchema };

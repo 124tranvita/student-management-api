@@ -72,8 +72,8 @@ export class BaseMentorDto {
   @IsOptional()
   @ApiProperty({
     required: false,
-    enum: ['Active', 'Busy', 'Inactive'],
-    default: 'Active',
+    enum: ['1', '2', '0'],
+    default: '1',
   })
   status: string;
 

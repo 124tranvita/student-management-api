@@ -4,7 +4,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Mentor } from 'src/mentor/schemas/mentor.schema';
 import { Student } from 'src/student/schemas/student.schema';
 
-export type ClassDocument = HydratedDocument<Class>;
+export type ClassroomDocument = HydratedDocument<Classroom>;
 
 @Schema({
   toJSON: {
@@ -12,7 +12,7 @@ export type ClassDocument = HydratedDocument<Class>;
     virtuals: true,
   },
 })
-export class Class {
+export class Classroom {
   @Prop({
     required: true,
     unique: true,
@@ -33,8 +33,12 @@ export class Class {
   })
   createdAt: Date;
 
-  @Prop()
-  image: string;
+  @Prop({
+    required: true,
+    default:
+      'https://sonomalibrary.org/sites/default/files/styles/large/public/images/youthcoding.png',
+  })
+  cover: string;
 
   // Class belong one mentor
   @Prop({
@@ -53,38 +57,67 @@ export class Class {
   students?: Student[];
 }
 
-const ClassSchema = SchemaFactory.createForClass(Class);
+const ClassroomSchema = SchemaFactory.createForClass(Classroom);
 
-ClassSchema.virtual('assignedMentors', {
+ClassroomSchema.virtual('assignedMentors', {
   ref: 'Mentor',
   foreignField: 'classes',
   localField: '_id',
 });
 
-ClassSchema.virtual('mentorCnt', {
+ClassroomSchema.virtual('mentorCnt', {
   ref: 'Mentor',
   foreignField: 'classes',
   localField: '_id',
   count: true,
 });
 
-ClassSchema.virtual('assignedStudents', {
+ClassroomSchema.virtual('assignedStudents', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
 });
 
-ClassSchema.virtual('studentCnt', {
+ClassroomSchema.virtual('studentCnt', {
   ref: 'Student',
   foreignField: 'classes',
   localField: '_id',
   count: true,
 });
 
-ClassSchema.virtual('assigned', {
+ClassroomSchema.virtual('assigned', {
   ref: 'Assign',
   foreignField: 'classroom',
   localField: '_id',
 });
 
-export { ClassSchema };
+/** STATIC FUNCTIONS */
+ClassroomSchema.statics.countStudent = async function (id) {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        _id: id,
+      },
+    },
+    {
+      $addFields: {
+        totalMentors: { $size: '$mentors' },
+      },
+    },
+  ]);
+
+  return stats;
+};
+
+/** Prehook */
+ClassroomSchema.pre('find', async function (next) {
+  // const result = await doc.constructor.countStudent(doc._id);
+  // if (result && result.length > 0) {
+  //   doc = result[0];
+  // }
+  // console.log(doc);
+  // console.log(this);
+  next();
+});
+
+export { ClassroomSchema };

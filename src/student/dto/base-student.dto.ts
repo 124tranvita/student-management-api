@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -28,7 +29,7 @@ export class BaseStudentDto {
   })
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsDateString()
   @ApiProperty({
     description: 'Student birthday',
@@ -36,7 +37,7 @@ export class BaseStudentDto {
   })
   doB: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'Student name',
@@ -53,4 +54,31 @@ export class BaseStudentDto {
     default: '0',
   })
   gender: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Student study status',
+    required: false,
+    enum: ['1', '2', '0'],
+    default: '1',
+  })
+  status?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128349.png',
+  })
+  avatar?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    default:
+      'https://img.freepik.com/free-vector/flat-geometric-background_23-2148957201.jpg',
+  })
+  cover?: string;
 }

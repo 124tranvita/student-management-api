@@ -10,25 +10,25 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ClassService } from './class.service';
+import { ClassroomService } from './classroom.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { CreateClassDto } from './dto/create-class.dto';
-import { UpdateClassDto } from './dto/update-class.dto';
+import { CreateClassroomDto } from './dto/create-classroom.dto';
+import { UpdateClassroomDto } from './dto/update-classroom.dto';
 
-@Controller('class')
-export class ClassController {
-  constructor(private readonly service: ClassService) {}
+@Controller('classroom')
+export class ClassroomController {
+  constructor(private readonly service: ClassroomService) {}
 
   /** Create classroom
-   * @param createClassDto - Class create Dto
+   * @param createClassroomDto - Class create Dto
    * @returns - New classroom
    */
   @Post()
   @ApiOkResponse()
   @HttpCode(201)
-  async create(@Body() createClassDto: CreateClassDto) {
-    const classroom = await this.service.create(createClassDto);
+  async create(@Body() createClassroomDto: CreateClassroomDto) {
+    const classroom = await this.service.create(createClassroomDto);
     return {
       status: 'success',
       data: classroom,
@@ -41,8 +41,63 @@ export class ClassController {
   @Get()
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll() {
-    const classrooms = await this.service.findAll();
+  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    const classrooms = await this.service.findAll(page, limit);
+    const count = await this.service.count();
+
+    return {
+      status: 'success',
+      grossCnt: count,
+      data: classrooms,
+    };
+  }
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  @Get('unassign-mentor/?')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllUnassignClassroomMentor(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classrooms = await this.service.findAllUnassignClassroomMentor(
+      id,
+      page,
+      limit,
+    );
+
+    return {
+      status: 'success',
+      grossCnt: classrooms.length,
+      data: classrooms,
+    };
+  }
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of Classroom that unssigned to mentor
+   */
+  @Get('unassign-student/?')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAllUnassignClassroomStudent(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const classrooms = await this.service.findAllUnassignClassroomStudent(
+      id,
+      page,
+      limit,
+    );
 
     return {
       status: 'success',
@@ -73,7 +128,7 @@ export class ClassController {
 
   /** Update classroom
    * @param id - Classroom's Id
-   * @param updateClassDto - Classroom update Dto
+   * @param updateClassroomDto - Classroom update Dto
    * @returns - Updated classroom
    */
   @Patch(':id')
@@ -81,9 +136,9 @@ export class ClassController {
   @HttpCode(200)
   async update(
     @Param('id') id: Types.ObjectId,
-    @Body() updateClassDto: UpdateClassDto,
+    @Body() updateClassroomDto: UpdateClassroomDto,
   ) {
-    const classroom = await this.service.update(id, updateClassDto);
+    const classroom = await this.service.update(id, updateClassroomDto);
 
     // If no classroom was found
     if (!classroom) {
@@ -113,32 +168,38 @@ export class ClassController {
 
     return {
       status: 'success',
-      data: {},
+      data: classroom,
     };
   }
 
-  /** Find Classroom for assign table list
-   * @param id - Current logged in mentor id
+  /*************************
+   *
+   *  MENTOR ASSIGNMENT
+   *
+   ************************* */
+
+  /** Find all classrooms that unassign to any mentor yet
+   * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
-   * @returns - List of Classroom that unssigned to logged in menter yet
+   * @returns - List of Classroom that unssigned to mentor
    */
-  @Get('list/?')
+  @Get('assign-mentor/?')
   @ApiOkResponse()
   @HttpCode(200)
-  async findClassroomList(
+  async findAllAssignedClassroomMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    const classrooms = await this.service.findClassroomList(id, page, limit);
-    const count = await this.service.countByCondition({
-      mentors: { $nin: [id] },
-    });
-
+    const classrooms = await this.service.findAllAssignedClassroomMentor(
+      id,
+      page,
+      limit,
+    );
     return {
       status: 'success',
-      grossCnt: count,
+      grossCnt: classrooms.length,
       data: classrooms,
     };
   }

@@ -21,6 +21,86 @@ export class MentorController {
   constructor(private readonly service: MentorService) {}
 
   /** ADMIN ROLE */
+  /** Find all mentors that not assinged to classroomId yet
+   * @param id - Classroom's Id
+   * @param page - Current page
+   * @param limit - Limit per page
+   */
+
+  @Get('classroom-unassign')
+  async findAllUnassignMentorClassroom(
+    @Query('id') id: Types.ObjectId,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    const mentors = await this.service.findAllUnassignMentorClassroom(
+      id,
+      page,
+      limit,
+    );
+    return {
+      status: 'success',
+      grossCnt: mentors.length,
+      data: mentors,
+    };
+  }
+
+  /** Find all classrooms that assigned to mentor
+   * @param id - Mentor's id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - Mentor document with assigned classrooms list
+   */
+  @Get('classrooms/:id')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAssignedClass(
+    @Param('id') id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    const mentor = await this.service.findAssignedClass(id, page, limit);
+
+    if (!mentor) {
+      throw new NotFoundException(`Mentor with id ${id} was not found`);
+    }
+
+    return {
+      status: 'success',
+      data: mentor,
+    };
+  }
+
+  /** Find all students that assigned to mentor
+   * @param id - Mentor's id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - Mentor document with assigned classrooms list
+   */
+  @Get('students/:id')
+  @ApiOkResponse()
+  @HttpCode(200)
+  async findAssignedStudent(
+    @Param('id') id: Types.ObjectId,
+    page: number,
+    limit: number,
+  ) {
+    const mentor = await this.service.findAssignedStudent(id, page, limit);
+
+    if (!mentor) {
+      throw new NotFoundException(`Mentor with id ${id} was not found`);
+    }
+
+    return {
+      status: 'success',
+      data: mentor,
+    };
+  }
+
+  /**********************************
+   * BASIC CRUD
+   **********************************/
+
   /** Create new mentor/admin
    * @param createMentorDto - Create mentor Dto
    * @returns - New added mentor/admin document
@@ -30,6 +110,7 @@ export class MentorController {
   @HttpCode(201)
   async create(@Body() createMentorDto: CreateMentorDto) {
     const mentor = await this.service.create(createMentorDto);
+
     return {
       status: 'success',
       data: mentor,
@@ -118,50 +199,6 @@ export class MentorController {
     // If no mentor was found
     if (!mentor) {
       throw new NotFoundException(`Mentor with id: ${id} was not found!`);
-    }
-
-    return {
-      status: 'success',
-      data: mentor,
-    };
-  }
-
-  /** Get all classrooms that assigned to mentor
-   * @param id - Mentor's id
-   * @param page - Current page
-   * @param limit - Limit per page
-   * @returns - Mentor document with assigned classrooms list
-   */
-  @Get('classrooms/:id')
-  @ApiOkResponse()
-  @HttpCode(200)
-  async findAssignedClass(id: Types.ObjectId, page: number, limit: number) {
-    const mentor = this.service.findAssignedClass(id, page, limit);
-
-    if (!mentor) {
-      throw new NotFoundException(`Mentor with id ${id} was not found`);
-    }
-
-    return {
-      status: 'success',
-      data: mentor,
-    };
-  }
-
-  /** Get all classrooms that assigned to mentor
-   * @param id - Mentor's id
-   * @param page - Current page
-   * @param limit - Limit per page
-   * @returns - Mentor document with assigned classrooms list
-   */
-  @Get('students/:id')
-  @ApiOkResponse()
-  @HttpCode(200)
-  async findAssignedStudent(id: Types.ObjectId, page: number, limit: number) {
-    const mentor = this.service.findAssignedStudent(id, page, limit);
-
-    if (!mentor) {
-      throw new NotFoundException(`Mentor with id ${id} was not found`);
     }
 
     return {
