@@ -9,14 +9,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { StudentService } from './student.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
+import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Controller('student')
+@UseGuards(AccessTokenGuard)
 export class StudentController {
   constructor(private readonly service: StudentService) {}
 
