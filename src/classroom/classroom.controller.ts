@@ -9,14 +9,19 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ClassroomService } from './classroom.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Types } from 'mongoose';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
+import { Role } from 'src/auth/roles/role.enum';
+import { Roles } from 'src/decorators/roles.decorator';
+import { ClassroomService } from './classroom.service';
 import { CreateClassroomDto } from './dto/create-classroom.dto';
 import { UpdateClassroomDto } from './dto/update-classroom.dto';
 
 @Controller('classroom')
+@UseGuards(AccessTokenGuard)
 export class ClassroomController {
   constructor(private readonly service: ClassroomService) {}
 
@@ -25,6 +30,7 @@ export class ClassroomController {
    * @returns - New classroom
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(201)
   async create(@Body() createClassroomDto: CreateClassroomDto) {
@@ -39,6 +45,7 @@ export class ClassroomController {
    * @returns - List of all classrooms
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAll(@Query('page') page: number, @Query('limit') limit: number) {
@@ -59,6 +66,7 @@ export class ClassroomController {
    * @returns - List of Classroom that unssigned to mentor
    */
   @Get('unassign-mentor/?')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAllUnassignClassroomMentor(
@@ -86,6 +94,7 @@ export class ClassroomController {
    * @returns - List of Classroom that unssigned to mentor
    */
   @Get('unassign-student/?')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAllUnassignClassroomStudent(
@@ -111,6 +120,7 @@ export class ClassroomController {
    * @returns - Founded classroom by Id with count of assigned students and classrooms
    */
   @Get(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findOne(@Param('id') id: Types.ObjectId) {
@@ -132,6 +142,7 @@ export class ClassroomController {
    * @returns - Updated classroom
    */
   @Patch(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async update(
@@ -156,6 +167,7 @@ export class ClassroomController {
    * @returns - Deleted classroom
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async delete(@Param('id') id: Types.ObjectId) {
@@ -185,6 +197,7 @@ export class ClassroomController {
    * @returns - List of Classroom that unssigned to mentor
    */
   @Get('assign-mentor/?')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAllAssignedClassroomMentor(
@@ -211,6 +224,7 @@ export class ClassroomController {
    * @returns - Founded classroom with list of assigned mentors (pagination)
    */
   @Get('mentors/:id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAssignedMentorList(
@@ -241,6 +255,7 @@ export class ClassroomController {
    * @returns - Founded classroom with list of assigned students (pagination)
    */
   @Get('students/:id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAssignedStudentList(

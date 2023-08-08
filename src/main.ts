@@ -37,7 +37,7 @@ async function bootstrap() {
   );
 
   const httpAdapterHost = app.get(HttpAdapterHost);
-  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   const config = new DocumentBuilder()
     .setTitle('Students management')

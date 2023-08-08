@@ -35,11 +35,14 @@ export class MentorService {
    */
   async findAll(
     id: Types.ObjectId,
+    role: Role,
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
     return await this.model.aggregate([
-      { $match: { _id: { $ne: new Types.ObjectId(id) } } },
+      {
+        $match: { _id: { $ne: new Types.ObjectId(id) }, roles: { $eq: role } },
+      },
       {
         $addFields: {
           assignedStudent: { $size: { $ifNull: ['$students', []] } },
@@ -71,18 +74,11 @@ export class MentorService {
     updateMentorDto: UpdateMentorDto,
   ): Promise<MentorDocument> {
     return await this.model
-      .findByIdAndUpdate(
-        id,
+      .findOneAndUpdate(
+        { _id: new Types.ObjectId(id) },
         [
           {
-            $set: {
-              name: updateMentorDto.name,
-              languages: updateMentorDto.languages,
-              education: updateMentorDto.education,
-              avatar: updateMentorDto.avatar,
-              roles: updateMentorDto.roles,
-              status: updateMentorDto.status,
-            },
+            $set: { ...updateMentorDto },
           },
           {
             $addFields: {
@@ -95,6 +91,22 @@ export class MentorService {
           new: true,
         },
       )
+      .exec();
+  }
+
+  /** Update mentor/admin refresh token
+   * @param id - Mentor/admin Id
+   * @param updateMentorDto - Mentor/admin update Dto
+   * @returns - New updated mentor/adim document
+   */
+  async updateRefreshToken(
+    id: Types.ObjectId,
+    updateMentorDto: UpdateMentorDto,
+  ): Promise<MentorDocument> {
+    return await this.model
+      .findByIdAndUpdate(id, updateMentorDto, {
+        new: true,
+      })
       .exec();
   }
 

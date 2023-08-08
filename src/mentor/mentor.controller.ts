@@ -9,18 +9,23 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MentorService } from './mentor.service';
 import { Types } from 'mongoose';
 import { ApiOkResponse } from '@nestjs/swagger';
+import { AccessTokenGuard } from 'src/auth/guards/accessToken.guard';
 import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/auth/roles/role.enum';
+import { convertRole } from 'src/utils';
 
 @Controller('mentor')
+@UseGuards(AccessTokenGuard)
 export class MentorController {
   constructor(private readonly service: MentorService) {}
 
-  /** ADMIN ROLE */
   /** Find all mentors that not assinged to classroomId yet
    * @param id - Classroom's Id
    * @param page - Current page
@@ -28,6 +33,7 @@ export class MentorController {
    */
 
   @Get('classroom-unassign')
+  @Roles(Role.Admin)
   async findAllUnassignMentorClassroom(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
@@ -106,6 +112,7 @@ export class MentorController {
    * @returns - New added mentor/admin document
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(201)
   async create(@Body() createMentorDto: CreateMentorDto) {
@@ -124,14 +131,17 @@ export class MentorController {
    * @returns - List of all mentors/admins (excluded admin who is querying) document
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async findAll(
     @Query('id') id: Types.ObjectId,
+    @Query('role') role: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    const mentors = await this.service.findAll(id, page, limit);
+    const mappedRole = convertRole(role);
+    const mentors = await this.service.findAll(id, mappedRole, page, limit);
     const count = await this.service.count();
 
     return {
@@ -167,6 +177,7 @@ export class MentorController {
    * @returns - New updated mentor/adim document
    */
   @Patch(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async update(
@@ -191,6 +202,7 @@ export class MentorController {
    * @returns - The deleted mentor/admin document
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
   async delete(@Param('id') id: Types.ObjectId) {

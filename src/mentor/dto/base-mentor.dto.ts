@@ -108,4 +108,7 @@ export class BaseMentorDto {
     type: Date,
   })
   createdAt: Date;
+
+  @ApiProperty()
+  refreshToken: any;
 }

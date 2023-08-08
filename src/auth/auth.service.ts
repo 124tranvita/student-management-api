@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 import { MentorService } from 'src/mentor/mentor.service';
+import { Role } from './roles/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
    * @param email - Mentor's email
    * @param password - Mentor's password
    */
-  async signin(email: string, password: string): Promise<any> {
+  async signinAdmin(email: string, password: string): Promise<any> {
     // Step 1: Fetch a mentor with the given email
     const mentor = await this.mentorService.findByEmail(email);
 
@@ -31,16 +32,21 @@ export class AuthService {
       );
     }
 
+    // If mentor is nod admin
+    if (mentor.roles === Role.Mentor) {
+      throw new ForbiddenException(`Permission denied.`);
+    }
+
     // Step 2: Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, mentor.password);
 
-    // If password does not mtach, throw an error
+    // If password does not match, throw an error
     if (!isPasswordValid) {
       throw new UnauthorizedException(`Invalid password.`);
     }
 
     // Step 3: Generate a JWT contianing the mentor's ID and return it
-    const tokens = await this.getTokens(mentor._id, mentor.email);
+    const tokens = await this.getTokens(mentor._id, mentor.email, mentor.roles);
     await this.updateRefreshToken(mentor._id, tokens.refreshToken);
 
     return tokens;
@@ -54,7 +60,8 @@ export class AuthService {
    * @param data - data to be hashed
    */
   async hashData(data: string) {
-    const salt = await bcrypt.genSalt();
+    const saltOrRounds = 10;
+    const salt = await bcrypt.genSalt(saltOrRounds);
     return await bcrypt.hash(data, salt);
   }
 
@@ -64,7 +71,7 @@ export class AuthService {
    */
   async updateRefreshToken(mentorId: Types.ObjectId, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.mentorService.update(mentorId, {
+    await this.mentorService.updateRefreshToken(mentorId, {
       refreshToken: hashedRefreshToken,
     });
   }
@@ -73,12 +80,13 @@ export class AuthService {
    * @param mentorId - mentor's Id
    * @param email - mentor's email
    */
-  async getTokens(mentorId: Types.ObjectId, email: string) {
+  async getTokens(mentorId: Types.ObjectId, email: string, roles: Role) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: mentorId,
           email,
+          roles,
         },
         {
           secret: process.env.JWT_ACCESS_SECRET,
@@ -89,6 +97,7 @@ export class AuthService {
         {
           sub: mentorId,
           email,
+          roles,
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,
@@ -128,7 +137,7 @@ export class AuthService {
     }
 
     // Step 3: Generate a tokens contianing the mentor's ID
-    const tokens = await this.getTokens(mentor._id, mentor.email);
+    const tokens = await this.getTokens(mentor._id, mentor.email, mentor.roles);
 
     // Step 4: Update the new Refresh token for mentor
     await this.updateRefreshToken(mentor._id, tokens.refreshToken);

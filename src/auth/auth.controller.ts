@@ -10,31 +10,44 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Request } from 'express';
+import { AccessTokenGuard } from './guards/accessToken.guard';
+import { RefreshTokenGuard } from './guards/refreshToken.guard';
 import { AuthService } from './auth.service';
 import { SigninDto } from './dto/signin.dto';
 import { AuthEntity } from './entity/auth.entity';
-import { AccessTokenGuard } from './guards/accessToken.guard';
-import { RefreshTokenGuard } from './guards/refreshToken.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('signin')
+  @Post('signin-admin')
   @ApiOkResponse({ type: AuthEntity })
-  async signin(@Body() signinDto: SigninDto) {
-    return await this.authService.signin(signinDto.email, signinDto.password);
+  async signinAdmin(@Body() signinDto: SigninDto) {
+    const tokens = await this.authService.signinAdmin(
+      signinDto.email,
+      signinDto.password,
+    );
+
+    return {
+      status: 'success',
+      data: tokens,
+    };
   }
 
   @UseGuards(AccessTokenGuard)
   @Get('profile')
   getProfile(@Req() req: Request) {
-    return req.user;
+    const user = req.user;
+
+    return {
+      status: 'success',
+      data: user,
+    };
   }
 
   @UseGuards(AccessTokenGuard)
-  @Get('logout')
+  @Get('signout')
   logout(@Req() req: Request) {
     console.log({ user: req.user });
     this.authService.logout(req.user['sub']);
