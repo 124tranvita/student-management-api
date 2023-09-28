@@ -80,9 +80,13 @@ export class ClassroomController {
       limit,
     );
 
+    const count = await this.service.countByCondition({
+      mentors: { $nin: [new Types.ObjectId(id)] },
+    });
+
     return {
       status: 'success',
-      grossCnt: classrooms.length,
+      grossCnt: count,
       data: classrooms,
     };
   }

@@ -161,4 +161,14 @@ export class AssignService {
       .sort({ assignedAt: -1 })
       .exec();
   }
+
+  // Getting the numbers of documents stored in database
+  async countClassroomByCondition<T>(condition: T): Promise<number> {
+    return await this.assignClassroomMentorModel.count(condition);
+  }
+
+  // Getting the numbers of documents stored in database
+  async countStudentByCondition<T>(condition: T): Promise<number> {
+    return await this.assignStudentMentorModel.count(condition);
+  }
 }

@@ -72,11 +72,14 @@ export class StudentController {
     @Query('limit') limit: number,
   ) {
     const students = await this.service.findAllUnassignStud(page, limit);
+    const count = await this.service.countByCondition({
+      mentor: { $eq: undefined },
+    });
 
     return {
       status: 'success',
       data: students,
-      grossCnt: students.length,
+      grossCnt: count,
     };
   }
 

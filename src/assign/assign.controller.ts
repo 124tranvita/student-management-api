@@ -176,11 +176,14 @@ export class AssignController {
       page,
       limit,
     );
+    const count = await this.assignService.countStudentByCondition({
+      mentor: { $eq: id },
+    });
 
     return {
       status: 'success',
       data: result,
-      grossCnt: result.length,
+      grossCnt: count,
     };
   }
 
@@ -334,10 +337,14 @@ export class AssignController {
       limit,
     );
 
+    const count = await this.assignService.countClassroomByCondition({
+      mentor: id,
+    });
+
     return {
       status: 'success',
       data: result,
-      grossCnt: result.length,
+      grossCnt: count,
     };
   }
   /********************************
