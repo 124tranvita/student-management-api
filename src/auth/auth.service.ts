@@ -27,9 +27,7 @@ export class AuthService {
 
     // If no mentor is found, throw an error
     if (!mentor) {
-      throw new NotFoundException(
-        `Mentor with email: ${email} does not exist.`,
-      );
+      throw new NotFoundException(`Email does not exist.`);
     }
 
     // If mentor is nod admin

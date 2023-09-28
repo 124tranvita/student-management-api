@@ -17,6 +17,14 @@ export class MentorService {
    * @returns - New added mentor/admin document
    */
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
+    // If email already registered
+    const mentor = await this.model.find({
+      email: { $eq: createMentorDto.email },
+    });
+
+    if (mentor) {
+      throw new BadRequestException(`Email already registered.`);
+    }
     // Hash password
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(createMentorDto.password, salt);
