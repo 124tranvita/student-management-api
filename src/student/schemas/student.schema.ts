@@ -84,6 +84,8 @@ export class Student {
 
 const StudentSchema = SchemaFactory.createForClass(Student);
 
+StudentSchema.index({ studentId: 'text', name: 'text' });
+
 StudentSchema.virtual('classroom', {
   ref: 'Classroom',
   foreignField: 'students',

@@ -118,6 +118,27 @@ export class StudentService {
       .exec();
   }
 
+  /** Get all unassign students
+   * @param page - Current page
+   * @param limit - Limi per page
+   * @returns - List of all students that not assigned to any mentor yet
+   */
+  async findAllUnassignStudByQueryString(
+    page: number,
+    limit: number,
+    queryString: string,
+  ) {
+    return this.model
+      .find({
+        mentor: { $eq: undefined },
+        $text: { $search: `\"${queryString}\"` },
+      })
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
   // Getting the numbers of documents stored in database
   async count(): Promise<number> {
     return await this.model.countDocuments();

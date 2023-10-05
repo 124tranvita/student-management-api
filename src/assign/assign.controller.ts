@@ -161,6 +161,7 @@ export class AssignController {
    * @param id - Mentor's Id
    * @param page - Current Page
    * @param limit - Limit per page
+   * @param queryString - Search keyword
    * @returns - List of assigned student documents that belong to mentor's id
    */
   @Get('mentor/student-to-mentor')
@@ -170,11 +171,13 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString?: string,
   ) {
     const result = await this.assignService.findAllAssignedStudentMentor(
       id,
       page,
       limit,
+      queryString,
     );
     const count = await this.assignService.countStudentByCondition({
       mentor: { $eq: id },
@@ -183,7 +186,7 @@ export class AssignController {
     return {
       status: 'success',
       data: result,
-      grossCnt: count,
+      grossCnt: queryString ? result.length : count,
     };
   }
 

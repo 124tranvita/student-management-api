@@ -43,26 +43,44 @@ export class ClassroomController {
 
   /** Get all classrooms
    * @returns - List of all classrooms
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @param queryString - Search query string
    */
   @Get()
   @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
-    const classrooms = await this.service.findAll(page, limit);
-    const count = await this.service.count();
+  async findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
+  ) {
+    if (queryString) {
+      const classrooms = await this.service.search(queryString, page, limit);
 
-    return {
-      status: 'success',
-      grossCnt: count,
-      data: classrooms,
-    };
+      return {
+        status: 'success',
+        grossCnt: classrooms.length,
+        data: classrooms,
+      };
+    } else {
+      const classrooms = await this.service.findAll(page, limit);
+      const count = await this.service.count();
+
+      return {
+        status: 'success',
+        grossCnt: count,
+        data: classrooms,
+      };
+    }
   }
 
   /** Find all classrooms that unassign to any mentor yet
    * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of Classroom that unssigned to mentor
    */
   @Get('unassign-mentor/?')
@@ -73,11 +91,13 @@ export class ClassroomController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
     const classrooms = await this.service.findAllUnassignClassroomMentor(
       id,
       page,
       limit,
+      queryString,
     );
 
     const count = await this.service.countByCondition({
@@ -86,7 +106,7 @@ export class ClassroomController {
 
     return {
       status: 'success',
-      grossCnt: count,
+      grossCnt: queryString ? classrooms.length : count,
       data: classrooms,
     };
   }

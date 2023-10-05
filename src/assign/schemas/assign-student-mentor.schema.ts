@@ -63,4 +63,6 @@ export class AssignStudentMentor {
 const AssignStudentMentorSchema =
   SchemaFactory.createForClass(AssignStudentMentor);
 
+AssignStudentMentorSchema.index({ studentId: 'text', studentName: 'text' });
+
 export { AssignStudentMentorSchema };

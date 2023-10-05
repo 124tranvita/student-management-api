@@ -84,11 +84,23 @@ export class AssignService {
     id: Types.ObjectId,
     page: number,
     limit: number,
+    queryString?: string,
   ) {
-    return await this.assignStudentMentorModel
-      .find({
+    let options = {};
+
+    if (queryString) {
+      options = {
         mentor: { $eq: id },
-      })
+        $text: { $search: `\"${queryString}\"` },
+      };
+    } else {
+      options = {
+        mentor: { $eq: id },
+      };
+    }
+
+    return await this.assignStudentMentorModel
+      .find(options)
       .skip((page - 1) * limit)
       .limit(limit * 1)
       .sort({ assignedAt: -1 })

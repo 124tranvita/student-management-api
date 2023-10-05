@@ -42,6 +42,35 @@ export class ClassroomService {
     ]);
   }
 
+  /** Get classrooms base on search query string
+   * @param queryString - Search keyword
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of all classroom documents
+   */
+  async search(
+    queryString: string,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
+    return await this.model.aggregate([
+      {
+        $match: {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        },
+      },
+      {
+        $addFields: {
+          assignedStudent: { $size: { $ifNull: ['$students', []] } },
+          assignedMentor: { $size: { $ifNull: ['$mentors', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+    ]);
+  }
+
   /** Get classroom
    * @param id - Classroom's Id
    * @returns - Founded classroom document by Id
@@ -97,15 +126,30 @@ export class ClassroomService {
    * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of Classroom that unssigned to mentor
    */
   async findAllUnassignClassroomMentor(
     id: Types.ObjectId,
     page: number,
     limit: number,
+    queryString: string,
   ): Promise<Classroom[]> {
+    let options = {};
+
+    if (queryString) {
+      options = {
+        mentors: { $nin: [new Types.ObjectId(id)] },
+        $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+      };
+    } else {
+      options = {
+        mentors: { $nin: [new Types.ObjectId(id)] },
+      };
+    }
+
     return await this.model.aggregate([
-      { $match: { mentors: { $nin: [new Types.ObjectId(id)] } } },
+      { $match: options },
       {
         $addFields: {
           assginedMentor: { $size: { $ifNull: ['$mentors', []] } },

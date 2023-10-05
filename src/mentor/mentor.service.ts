@@ -18,7 +18,7 @@ export class MentorService {
    */
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
     // If email already registered
-    const mentor = await this.model.find({
+    const mentor = await this.model.findOne({
       email: { $eq: createMentorDto.email },
     });
 
@@ -50,6 +50,41 @@ export class MentorService {
     return await this.model.aggregate([
       {
         $match: { _id: { $ne: new Types.ObjectId(id) }, roles: { $eq: role } },
+      },
+      {
+        $addFields: {
+          assignedStudent: { $size: { $ifNull: ['$students', []] } },
+          assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+      { $project: { password: 0 } },
+    ]);
+  }
+
+  /** Get mentors/admins (excluded admin who is querying) base on search query
+   * @param queryString - Search keyword
+   * @param id - Currently logged in admin's id
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of all mentors/admins (excluded admin who is querying) document
+   */
+  async search(
+    queryString: string,
+    id: Types.ObjectId,
+    role: Role,
+    page: number,
+    limit: number,
+  ): Promise<Mentor[]> {
+    return await this.model.aggregate([
+      {
+        $match: {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+          _id: { $ne: new Types.ObjectId(id) },
+          roles: { $eq: role },
+        },
       },
       {
         $addFields: {
@@ -307,13 +342,18 @@ export class MentorService {
     ]);
   }
 
+  /** Get mentor by email */
+  async findByEmail(email: string): Promise<MentorDocument> {
+    return await this.model.findOne({ email }).select('+password').exec();
+  }
+
   // Getting the numbers of documents stored in database
   async count(): Promise<number> {
     return await this.model.countDocuments();
   }
 
-  /** Get mentor by email */
-  async findByEmail(email: string): Promise<MentorDocument> {
-    return await this.model.findOne({ email }).select('+password').exec();
+  // Getting the numbers of documents stored in database
+  async countByCondition<T>(condition: T): Promise<number> {
+    return await this.model.count(condition);
   }
 }
