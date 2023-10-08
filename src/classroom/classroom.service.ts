@@ -24,12 +24,18 @@ export class ClassroomService {
   }
 
   /** Get all classrooms
+   * @param options - Query options
    * @param page - Current page
    * @param limit - Limit per page
    * @returns - List of all classroom documents
    */
-  async findAll(page: number, limit: number): Promise<Classroom[]> {
+  async findAll(
+    options: object,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
     return await this.model.aggregate([
+      { $match: options },
       {
         $addFields: {
           assignedStudent: { $size: { $ifNull: ['$students', []] } },
@@ -123,31 +129,16 @@ export class ClassroomService {
    ************************* */
 
   /** Find all classrooms that unassign to any mentor yet
-   * @param id - Mentor's Id
+   * @param options - Query options
    * @param page - Current page
    * @param limit - Limit per page
-   * @param queryString - Search query string
    * @returns - List of Classroom that unssigned to mentor
    */
   async findAllUnassignClassroomMentor(
-    id: Types.ObjectId,
+    options: object,
     page: number,
     limit: number,
-    queryString: string,
   ): Promise<Classroom[]> {
-    let options = {};
-
-    if (queryString) {
-      options = {
-        mentors: { $nin: [new Types.ObjectId(id)] },
-        $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
-      };
-    } else {
-      options = {
-        mentors: { $nin: [new Types.ObjectId(id)] },
-      };
-    }
-
     return await this.model.aggregate([
       { $match: options },
       {

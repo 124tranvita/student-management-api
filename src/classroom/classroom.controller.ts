@@ -56,24 +56,20 @@ export class ClassroomController {
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
-    if (queryString) {
-      const classrooms = await this.service.search(queryString, page, limit);
+    const options = queryString
+      ? {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        }
+      : {};
 
-      return {
-        status: 'success',
-        grossCnt: classrooms.length,
-        data: classrooms,
-      };
-    } else {
-      const classrooms = await this.service.findAll(page, limit);
-      const count = await this.service.count();
+    const classrooms = await this.service.findAll(options, page, limit);
+    const count = await this.service.count();
 
-      return {
-        status: 'success',
-        grossCnt: count,
-        data: classrooms,
-      };
-    }
+    return {
+      status: 'success',
+      grossCnt: queryString ? classrooms.length : count,
+      data: classrooms,
+    };
   }
 
   /** Find all classrooms that unassign to any mentor yet
@@ -93,11 +89,19 @@ export class ClassroomController {
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
+    const options = queryString
+      ? {
+          mentors: { $nin: [new Types.ObjectId(id)] },
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        }
+      : {
+          mentors: { $nin: [new Types.ObjectId(id)] },
+        };
+
     const classrooms = await this.service.findAllUnassignClassroomMentor(
-      id,
+      options,
       page,
       limit,
-      queryString,
     );
 
     const count = await this.service.countByCondition({

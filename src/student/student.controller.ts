@@ -73,30 +73,29 @@ export class StudentController {
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
-    if (queryString) {
-      const students = await this.service.findAllUnassignStudByQueryString(
-        page,
-        limit,
-        queryString,
-      );
+    const options = queryString
+      ? {
+          mentor: { $eq: undefined },
+          $text: { $search: `\"${queryString}\"` },
+        }
+      : {
+          mentor: { $eq: undefined },
+        };
 
-      return {
-        status: 'success',
-        data: students,
-        grossCnt: students.length,
-      };
-    } else {
-      const students = await this.service.findAllUnassignStud(page, limit);
-      const count = await this.service.countByCondition({
-        mentor: { $eq: undefined },
-      });
+    const students = await this.service.findAllUnassignStud(
+      options,
+      page,
+      limit,
+    );
+    const count = await this.service.countByCondition({
+      mentor: { $eq: undefined },
+    });
 
-      return {
-        status: 'success',
-        data: students,
-        grossCnt: count,
-      };
-    }
+    return {
+      status: 'success',
+      data: students,
+      grossCnt: queryString ? students.length : count,
+    };
   }
 
   /** Get student

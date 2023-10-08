@@ -75,30 +75,16 @@ export class AssignService {
   }
 
   /** Find all assigned students belong to mentor
-   * @param id - Mentor's Id
+   * @param options - Find condition
    * @param page - Current Page
    * @param limit - Limit per page
    * @returns - List of assigned student documents that belong to mentor's id
    */
   async findAllAssignedStudentMentor(
-    id: Types.ObjectId,
+    options: object,
     page: number,
     limit: number,
-    queryString?: string,
   ) {
-    let options = {};
-
-    if (queryString) {
-      options = {
-        mentor: { $eq: id },
-        $text: { $search: `\"${queryString}\"` },
-      };
-    } else {
-      options = {
-        mentor: { $eq: id },
-      };
-    }
-
     return await this.assignStudentMentorModel
       .find(options)
       .skip((page - 1) * limit)

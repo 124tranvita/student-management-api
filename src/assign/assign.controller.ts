@@ -53,7 +53,9 @@ export class AssignController {
     @Body() assignStudentMentorDto: AssignStudentMentorDto,
   ) {
     const assinged = await this.assignService.findAllAssignedStudentMentor(
-      mentorId,
+      {
+        mentor: { $eq: mentorId },
+      },
       1,
       26,
     );
@@ -171,14 +173,21 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Query('queryString') queryString?: string,
+    @Query('queryString') queryString: string,
   ) {
     const result = await this.assignService.findAllAssignedStudentMentor(
-      id,
+      queryString
+        ? {
+            mentor: { $eq: id },
+            $text: { $search: `\"${queryString}\"` },
+          }
+        : {
+            mentor: { $eq: id },
+          },
       page,
       limit,
-      queryString,
     );
+
     const count = await this.assignService.countStudentByCondition({
       mentor: { $eq: id },
     });
@@ -322,6 +331,7 @@ export class AssignController {
    * @param id - Mentor's Id
    * @param page - Current Page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of assigned student documents that belong to mentor's id
    */
   @Get('mentor/classroom-to-mentor')
@@ -331,11 +341,17 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
     const result = await this.assignService.findAllAssignedMentorClassroom(
-      {
-        mentor: id,
-      },
+      queryString
+        ? {
+            mentor: id,
+            $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+          }
+        : {
+            mentor: id,
+          },
       page,
       limit,
     );
@@ -347,7 +363,7 @@ export class AssignController {
     return {
       status: 'success',
       data: result,
-      grossCnt: count,
+      grossCnt: queryString ? result.length : count,
     };
   }
   /********************************

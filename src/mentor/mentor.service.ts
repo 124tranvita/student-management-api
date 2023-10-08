@@ -42,49 +42,13 @@ export class MentorService {
    * @returns - List of all mentors/admins (excluded admin who is querying) document
    */
   async findAll(
-    id: Types.ObjectId,
-    role: Role,
+    options: object,
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
     return await this.model.aggregate([
       {
-        $match: { _id: { $ne: new Types.ObjectId(id) }, roles: { $eq: role } },
-      },
-      {
-        $addFields: {
-          assignedStudent: { $size: { $ifNull: ['$students', []] } },
-          assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
-        },
-      },
-      { $skip: (page - 1) * limit },
-      { $limit: limit * 1 },
-      { $sort: { createdAt: -1 } },
-      { $project: { password: 0 } },
-    ]);
-  }
-
-  /** Get mentors/admins (excluded admin who is querying) base on search query
-   * @param queryString - Search keyword
-   * @param id - Currently logged in admin's id
-   * @param page - Current page
-   * @param limit - Limit per page
-   * @returns - List of all mentors/admins (excluded admin who is querying) document
-   */
-  async search(
-    queryString: string,
-    id: Types.ObjectId,
-    role: Role,
-    page: number,
-    limit: number,
-  ): Promise<Mentor[]> {
-    return await this.model.aggregate([
-      {
-        $match: {
-          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
-          _id: { $ne: new Types.ObjectId(id) },
-          roles: { $eq: role },
-        },
+        $match: options,
       },
       {
         $addFields: {

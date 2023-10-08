@@ -105,34 +105,14 @@ export class StudentService {
   }
 
   /** Get all unassign students
+   * @param options - Query options
    * @param page - Current page
    * @param limit - Limi per page
    * @returns - List of all students that not assigned to any mentor yet
    */
-  async findAllUnassignStud(page: number, limit: number) {
+  async findAllUnassignStud(options: object, page: number, limit: number) {
     return this.model
-      .find({ mentor: { $eq: undefined } })
-      .skip((page - 1) * limit)
-      .limit(limit * 1)
-      .sort({ createdAt: -1 })
-      .exec();
-  }
-
-  /** Get all unassign students
-   * @param page - Current page
-   * @param limit - Limi per page
-   * @returns - List of all students that not assigned to any mentor yet
-   */
-  async findAllUnassignStudByQueryString(
-    page: number,
-    limit: number,
-    queryString: string,
-  ) {
-    return this.model
-      .find({
-        mentor: { $eq: undefined },
-        $text: { $search: `\"${queryString}\"` },
-      })
+      .find(options)
       .skip((page - 1) * limit)
       .limit(limit * 1)
       .sort({ createdAt: -1 })

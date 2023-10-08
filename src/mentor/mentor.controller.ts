@@ -143,34 +143,28 @@ export class MentorController {
     @Query('queryString') queryString: string,
   ) {
     const mappedRole = convertRole(role);
+    const options = queryString
+      ? {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+          _id: { $ne: new Types.ObjectId(id) },
+          roles: { $eq: mappedRole },
+        }
+      : {
+          _id: { $ne: new Types.ObjectId(id) },
+          roles: { $eq: mappedRole },
+        };
 
-    if (queryString) {
-      const mentors = await this.service.search(
-        queryString,
-        id,
-        mappedRole,
-        page,
-        limit,
-      );
+    const mentors = await this.service.findAll(options, page, limit);
+    const count = await this.service.countByCondition({
+      _id: { $ne: new Types.ObjectId(id) },
+      roles: { $eq: mappedRole },
+    });
 
-      return {
-        status: 'success',
-        grossCnt: mentors.length,
-        data: mentors,
-      };
-    } else {
-      const mentors = await this.service.findAll(id, mappedRole, page, limit);
-      const count = await this.service.countByCondition({
-        _id: { $ne: new Types.ObjectId(id) },
-        roles: { $eq: mappedRole },
-      });
-
-      return {
-        status: 'success',
-        grossCnt: count,
-        data: mentors,
-      };
-    }
+    return {
+      status: 'success',
+      grossCnt: count,
+      data: mentors,
+    };
   }
 
   /** Get mentor/admin

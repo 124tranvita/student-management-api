@@ -80,4 +80,10 @@ const AssignClassroomMentorSchema = SchemaFactory.createForClass(
   AssignClassroomMentor,
 );
 
+AssignClassroomMentorSchema.index({
+  name: 'text',
+  description: 'text',
+  languages: 'text',
+});
+
 export { AssignClassroomMentorSchema };
