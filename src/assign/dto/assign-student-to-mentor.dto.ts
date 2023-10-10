@@ -2,7 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class BaseAssignStudentMentorDto {
+export class BaseAssignStudentToMentorDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'Student Id',
@@ -46,8 +46,8 @@ export class BaseAssignStudentMentorDto {
   student: Types.ObjectId;
 }
 
-export class CreateAssignStudentMentorDto extends BaseAssignStudentMentorDto {}
+export class CreateAssignStudentToMentorDto extends BaseAssignStudentToMentorDto {}
 
-export class UpdateAssignStudentMentorDto extends PartialType(
-  BaseAssignStudentMentorDto,
+export class UpdateAssignStudentToMentorDto extends PartialType(
+  BaseAssignStudentToMentorDto,
 ) {}

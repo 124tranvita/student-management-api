@@ -9,9 +9,9 @@ import { ClassroomModule } from 'src/classroom/classroom.module';
 import { MentorModule } from 'src/mentor/mentor.module';
 import { Mentor, MentorSchema } from 'src/mentor/schemas/mentor.schema';
 import {
-  AssignStudentMentor,
-  AssignStudentMentorSchema,
-} from './schemas/assign-student-mentor.schema';
+  AssignStudentToMentor,
+  AssignStudentToMentorSchema,
+} from './schemas/assign-student-to-mentor.schema';
 import { AssignController } from './assign.controller';
 import { Assign, AssingSchema } from './schemas/assign.schema';
 import { AssignService } from './assign.service';
@@ -30,7 +30,7 @@ import {
     MongooseModule.forFeature([{ name: Mentor.name, schema: MentorSchema }]),
     MongooseModule.forFeature([{ name: Assign.name, schema: AssingSchema }]),
     MongooseModule.forFeature([
-      { name: AssignStudentMentor.name, schema: AssignStudentMentorSchema },
+      { name: AssignStudentToMentor.name, schema: AssignStudentToMentorSchema },
     ]),
     MongooseModule.forFeature([
       { name: AssignClassroomMentor.name, schema: AssignClassroomMentorSchema },
