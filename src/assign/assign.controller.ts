@@ -22,7 +22,7 @@ import {
   UnassignClassroomMentorDto,
   UnassignStudentMentorDto,
 } from './dto/assign.dto';
-import { CreateAssignStudentMentorDto } from './dto/assign-student-mentor.dto';
+import { CreateAssignStudentToMentorDto } from './dto/assign-student-to-mentor.dto';
 import { CreateAssignClassroomMentorDto } from './dto/assign-classroom-mentor.dto';
 
 @Controller('assign')
@@ -53,7 +53,9 @@ export class AssignController {
     @Body() assignStudentMentorDto: AssignStudentMentorDto,
   ) {
     const assinged = await this.assignService.findAllAssignedStudentMentor(
-      mentorId,
+      {
+        mentor: { $eq: mentorId },
+      },
       1,
       26,
     );
@@ -82,7 +84,7 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        const createAssignStudentMentorDto: CreateAssignStudentMentorDto = {
+        const createAssignStudentToMentorDto: CreateAssignStudentToMentorDto = {
           studentId: student.studentId,
           studentName: student.name,
           studentStatus: student.status,
@@ -92,8 +94,8 @@ export class AssignController {
           student: student.id,
         };
 
-        return await this.assignService.createAssignStudentMentorRecord(
-          createAssignStudentMentorDto,
+        return await this.assignService.createAssignStudentToMentorRecord(
+          createAssignStudentToMentorDto,
         );
       }),
     );
@@ -120,7 +122,7 @@ export class AssignController {
 
     const result = await Promise.all(
       assignedIds.map(async (assignedId) => {
-        const record = await this.assignService.findAssignStudentMentorRecord(
+        const record = await this.assignService.findAssignStudentToMentorRecord(
           assignedId,
           mentorId,
         );
@@ -145,7 +147,7 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        return await this.assignService.delAssignStudentMentorRecord(
+        return await this.assignService.delAssignStudentToMentorRecord(
           assignedId,
         );
       }),
@@ -161,6 +163,7 @@ export class AssignController {
    * @param id - Mentor's Id
    * @param page - Current Page
    * @param limit - Limit per page
+   * @param queryString - Search keyword
    * @returns - List of assigned student documents that belong to mentor's id
    */
   @Get('mentor/student-to-mentor')
@@ -170,12 +173,21 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
     const result = await this.assignService.findAllAssignedStudentMentor(
-      id,
+      queryString
+        ? {
+            mentor: { $eq: id },
+            $text: { $search: `\"${queryString}\"` },
+          }
+        : {
+            mentor: { $eq: id },
+          },
       page,
       limit,
     );
+
     const count = await this.assignService.countStudentByCondition({
       mentor: { $eq: id },
     });
@@ -183,7 +195,7 @@ export class AssignController {
     return {
       status: 'success',
       data: result,
-      grossCnt: count,
+      grossCnt: queryString ? result.length : count,
     };
   }
 
@@ -319,6 +331,7 @@ export class AssignController {
    * @param id - Mentor's Id
    * @param page - Current Page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of assigned student documents that belong to mentor's id
    */
   @Get('mentor/classroom-to-mentor')
@@ -328,11 +341,17 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
     const result = await this.assignService.findAllAssignedMentorClassroom(
-      {
-        mentor: id,
-      },
+      queryString
+        ? {
+            mentor: id,
+            $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+          }
+        : {
+            mentor: id,
+          },
       page,
       limit,
     );
@@ -344,7 +363,7 @@ export class AssignController {
     return {
       status: 'success',
       data: result,
-      grossCnt: count,
+      grossCnt: queryString ? result.length : count,
     };
   }
   /********************************
@@ -478,6 +497,7 @@ export class AssignController {
    * @param id - Classroom's Id
    * @param page - Current Page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of assigned student documents that belong to mentor's id
    */
   @Get('classroom/mentor-to-classroom')
@@ -487,11 +507,24 @@ export class AssignController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
+    console.log({ queryString });
+
+    const options = queryString
+      ? {
+          $or: [
+            { assignee: { $regex: `/${queryString}/` } },
+            { email: { $regex: `/${queryString}/` } },
+          ],
+          classroom: { $eq: id },
+        }
+      : {
+          classroom: { $eq: id },
+        };
+
     const result = await this.assignService.findAllAssignedMentorClassroom(
-      {
-        classroom: { $eq: id },
-      },
+      options,
       page,
       limit,
     );

@@ -4,7 +4,8 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Mentor, MentorDocument } from 'src/mentor/schemas/mentor.schema';
 import { Student, StudentDocument } from 'src/student/schemas/student.schema';
 
-export type AssignStudentMentorDocument = HydratedDocument<AssignStudentMentor>;
+export type AssignStudentToMentorDocument =
+  HydratedDocument<AssignStudentToMentor>;
 
 @Schema({
   toJSON: {
@@ -12,7 +13,7 @@ export type AssignStudentMentorDocument = HydratedDocument<AssignStudentMentor>;
     virtuals: true,
   },
 })
-export class AssignStudentMentor {
+export class AssignStudentToMentor {
   @Prop({
     required: true,
   })
@@ -60,7 +61,10 @@ export class AssignStudentMentor {
   student: StudentDocument;
 }
 
-const AssignStudentMentorSchema =
-  SchemaFactory.createForClass(AssignStudentMentor);
+const AssignStudentToMentorSchema = SchemaFactory.createForClass(
+  AssignStudentToMentor,
+);
 
-export { AssignStudentMentorSchema };
+AssignStudentToMentorSchema.index({ studentId: 'text', studentName: 'text' });
+
+export { AssignStudentToMentorSchema };

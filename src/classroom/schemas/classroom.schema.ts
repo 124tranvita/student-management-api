@@ -59,6 +59,8 @@ export class Classroom {
 
 const ClassroomSchema = SchemaFactory.createForClass(Classroom);
 
+ClassroomSchema.index({ name: 'text', description: 'text' });
+
 ClassroomSchema.virtual('assignedMentors', {
   ref: 'Mentor',
   foreignField: 'classes',

@@ -128,6 +128,7 @@ export class MentorController {
    * @param id - Currently logged in admin's id
    * @param page - Current page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of all mentors/admins (excluded admin who is querying) document
    */
   @Get()
@@ -139,14 +140,29 @@ export class MentorController {
     @Query('role') role: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
     const mappedRole = convertRole(role);
-    const mentors = await this.service.findAll(id, mappedRole, page, limit);
-    const count = await this.service.count();
+    const options = queryString
+      ? {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+          _id: { $ne: new Types.ObjectId(id) },
+          roles: { $eq: mappedRole },
+        }
+      : {
+          _id: { $ne: new Types.ObjectId(id) },
+          roles: { $eq: mappedRole },
+        };
+
+    const mentors = await this.service.findAll(options, page, limit);
+    const count = await this.service.countByCondition({
+      _id: { $ne: new Types.ObjectId(id) },
+      roles: { $eq: mappedRole },
+    });
 
     return {
       status: 'success',
-      grossCnt: count - 1, //gorssCnt excluded admin who is querying
+      grossCnt: count,
       data: mentors,
     };
   }

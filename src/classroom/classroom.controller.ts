@@ -43,18 +43,31 @@ export class ClassroomController {
 
   /** Get all classrooms
    * @returns - List of all classrooms
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @param queryString - Search query string
    */
   @Get()
   @Roles(Role.Admin)
   @ApiOkResponse()
   @HttpCode(200)
-  async findAll(@Query('page') page: number, @Query('limit') limit: number) {
-    const classrooms = await this.service.findAll(page, limit);
+  async findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
+  ) {
+    const options = queryString
+      ? {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        }
+      : {};
+
+    const classrooms = await this.service.findAll(options, page, limit);
     const count = await this.service.count();
 
     return {
       status: 'success',
-      grossCnt: count,
+      grossCnt: queryString ? classrooms.length : count,
       data: classrooms,
     };
   }
@@ -63,6 +76,7 @@ export class ClassroomController {
    * @param id - Mentor's Id
    * @param page - Current page
    * @param limit - Limit per page
+   * @param queryString - Search query string
    * @returns - List of Classroom that unssigned to mentor
    */
   @Get('unassign-mentor/?')
@@ -73,9 +87,19 @@ export class ClassroomController {
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
+    const options = queryString
+      ? {
+          mentors: { $nin: [new Types.ObjectId(id)] },
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        }
+      : {
+          mentors: { $nin: [new Types.ObjectId(id)] },
+        };
+
     const classrooms = await this.service.findAllUnassignClassroomMentor(
-      id,
+      options,
       page,
       limit,
     );
@@ -86,7 +110,7 @@ export class ClassroomController {
 
     return {
       status: 'success',
-      grossCnt: count,
+      grossCnt: queryString ? classrooms.length : count,
       data: classrooms,
     };
   }

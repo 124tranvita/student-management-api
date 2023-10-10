@@ -18,7 +18,7 @@ export class MentorService {
    */
   async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
     // If email already registered
-    const mentor = await this.model.find({
+    const mentor = await this.model.findOne({
       email: { $eq: createMentorDto.email },
     });
 
@@ -42,14 +42,13 @@ export class MentorService {
    * @returns - List of all mentors/admins (excluded admin who is querying) document
    */
   async findAll(
-    id: Types.ObjectId,
-    role: Role,
+    options: object,
     page: number,
     limit: number,
   ): Promise<Mentor[]> {
     return await this.model.aggregate([
       {
-        $match: { _id: { $ne: new Types.ObjectId(id) }, roles: { $eq: role } },
+        $match: options,
       },
       {
         $addFields: {
@@ -307,13 +306,18 @@ export class MentorService {
     ]);
   }
 
+  /** Get mentor by email */
+  async findByEmail(email: string): Promise<MentorDocument> {
+    return await this.model.findOne({ email }).select('+password').exec();
+  }
+
   // Getting the numbers of documents stored in database
   async count(): Promise<number> {
     return await this.model.countDocuments();
   }
 
-  /** Get mentor by email */
-  async findByEmail(email: string): Promise<MentorDocument> {
-    return await this.model.findOne({ email }).select('+password').exec();
+  // Getting the numbers of documents stored in database
+  async countByCondition<T>(condition: T): Promise<number> {
+    return await this.model.count(condition);
   }
 }

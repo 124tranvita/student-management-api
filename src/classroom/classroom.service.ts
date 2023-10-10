@@ -24,12 +24,47 @@ export class ClassroomService {
   }
 
   /** Get all classrooms
+   * @param options - Query options
    * @param page - Current page
    * @param limit - Limit per page
    * @returns - List of all classroom documents
    */
-  async findAll(page: number, limit: number): Promise<Classroom[]> {
+  async findAll(
+    options: object,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
     return await this.model.aggregate([
+      { $match: options },
+      {
+        $addFields: {
+          assignedStudent: { $size: { $ifNull: ['$students', []] } },
+          assignedMentor: { $size: { $ifNull: ['$mentors', []] } },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit * 1 },
+      { $sort: { createdAt: -1 } },
+    ]);
+  }
+
+  /** Get classrooms base on search query string
+   * @param queryString - Search keyword
+   * @param page - Current page
+   * @param limit - Limit per page
+   * @returns - List of all classroom documents
+   */
+  async search(
+    queryString: string,
+    page: number,
+    limit: number,
+  ): Promise<Classroom[]> {
+    return await this.model.aggregate([
+      {
+        $match: {
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
+        },
+      },
       {
         $addFields: {
           assignedStudent: { $size: { $ifNull: ['$students', []] } },
@@ -94,18 +129,18 @@ export class ClassroomService {
    ************************* */
 
   /** Find all classrooms that unassign to any mentor yet
-   * @param id - Mentor's Id
+   * @param options - Query options
    * @param page - Current page
    * @param limit - Limit per page
    * @returns - List of Classroom that unssigned to mentor
    */
   async findAllUnassignClassroomMentor(
-    id: Types.ObjectId,
+    options: object,
     page: number,
     limit: number,
   ): Promise<Classroom[]> {
     return await this.model.aggregate([
-      { $match: { mentors: { $nin: [new Types.ObjectId(id)] } } },
+      { $match: options },
       {
         $addFields: {
           assginedMentor: { $size: { $ifNull: ['$mentors', []] } },

@@ -62,6 +62,7 @@ export class StudentController {
   /** Get all unassign students
    * @param page - Current page
    * @param limit - Limi per page
+   * @param queryString - Search query string
    * @returns - List of all students that not assigned to any mentor yet
    */
   @Get('unassign')
@@ -70,8 +71,22 @@ export class StudentController {
   async findAllUnassignStud(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('queryString') queryString: string,
   ) {
-    const students = await this.service.findAllUnassignStud(page, limit);
+    const options = queryString
+      ? {
+          mentor: { $eq: undefined },
+          $text: { $search: `\"${queryString}\"` },
+        }
+      : {
+          mentor: { $eq: undefined },
+        };
+
+    const students = await this.service.findAllUnassignStud(
+      options,
+      page,
+      limit,
+    );
     const count = await this.service.countByCondition({
       mentor: { $eq: undefined },
     });
@@ -79,7 +94,7 @@ export class StudentController {
     return {
       status: 'success',
       data: students,
-      grossCnt: count,
+      grossCnt: queryString ? students.length : count,
     };
   }
 
