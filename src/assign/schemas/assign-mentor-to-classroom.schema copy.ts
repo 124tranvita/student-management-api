@@ -7,8 +7,8 @@ import {
 } from 'src/classroom/schemas/classroom.schema';
 import { Mentor, MentorDocument } from 'src/mentor/schemas/mentor.schema';
 
-export type AssignClassroomMentorDocument =
-  HydratedDocument<AssignClassroomMentor>;
+export type AssignMentorToClassroomDocument =
+  HydratedDocument<AssignMentorToClassroom>;
 
 @Schema({
   toJSON: {
@@ -16,7 +16,7 @@ export type AssignClassroomMentorDocument =
     virtuals: true,
   },
 })
-export class AssignClassroomMentor {
+export class AssignMentorToClassroom {
   @Prop({
     required: true,
   })
@@ -24,40 +24,25 @@ export class AssignClassroomMentor {
 
   @Prop({
     required: true,
+    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
+  })
+  avatar: string;
+
+  @Prop({
+    required: true,
   })
   name: string;
 
   @Prop()
-  description?: string;
+  email: string;
+
+  @Prop()
+  status: string;
 
   @Prop({
     required: true,
   })
   languages: string[];
-
-  @Prop({
-    required: true,
-    default:
-      'https://sonomalibrary.org/sites/default/files/styles/large/public/images/youthcoding.png',
-  })
-  cover: string;
-
-  @Prop({
-    required: true,
-    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
-  })
-  avatar?: string;
-
-  @Prop({
-    required: true,
-  })
-  assignee: string;
-
-  @Prop()
-  email?: string;
-
-  @Prop()
-  status?: string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -76,15 +61,14 @@ export class AssignClassroomMentor {
   classroom: ClassroomDocument;
 }
 
-const AssignClassroomMentorSchema = SchemaFactory.createForClass(
-  AssignClassroomMentor,
+const AssignMentorToClassroomSchema = SchemaFactory.createForClass(
+  AssignMentorToClassroom,
 );
 
-AssignClassroomMentorSchema.index({
+AssignMentorToClassroomSchema.index({
   name: 'text',
-  description: 'text',
+  email: 'text',
   languages: 'text',
-  assignee: 'text',
 });
 
-export { AssignClassroomMentorSchema };
+export { AssignMentorToClassroomSchema };

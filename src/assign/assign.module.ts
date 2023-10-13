@@ -17,9 +17,13 @@ import { Assign, AssingSchema } from './schemas/assign.schema';
 import { AssignService } from './assign.service';
 import { StudentModule } from 'src/student/student.module';
 import {
-  AssignClassroomMentor,
-  AssignClassroomMentorSchema,
-} from './schemas/assign-classroom-mentor.schema';
+  AssignClassroomToMentor,
+  AssignClassroomToMentorSchema,
+} from './schemas/assign-classroom-to-mentor.schema';
+import {
+  AssignMentorToClassroom,
+  AssignMentorToClassroomSchema,
+} from './schemas/assign-mentor-to-classroom.schema';
 
 @Module({
   imports: [
@@ -33,7 +37,16 @@ import {
       { name: AssignStudentToMentor.name, schema: AssignStudentToMentorSchema },
     ]),
     MongooseModule.forFeature([
-      { name: AssignClassroomMentor.name, schema: AssignClassroomMentorSchema },
+      {
+        name: AssignClassroomToMentor.name,
+        schema: AssignClassroomToMentorSchema,
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: AssignMentorToClassroom.name,
+        schema: AssignMentorToClassroomSchema,
+      },
     ]),
     ClassroomModule,
     MentorModule,

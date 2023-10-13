@@ -7,8 +7,8 @@ import {
 } from 'src/classroom/schemas/classroom.schema';
 import { Mentor, MentorDocument } from 'src/mentor/schemas/mentor.schema';
 
-export type AssignClassroomMentorDocument =
-  HydratedDocument<AssignClassroomMentor>;
+export type AssignClassroomToMentorDocument =
+  HydratedDocument<AssignClassroomToMentor>;
 
 @Schema({
   toJSON: {
@@ -16,7 +16,7 @@ export type AssignClassroomMentorDocument =
     virtuals: true,
   },
 })
-export class AssignClassroomMentor {
+export class AssignClassroomToMentor {
   @Prop({
     required: true,
   })
@@ -43,23 +43,6 @@ export class AssignClassroomMentor {
   cover: string;
 
   @Prop({
-    required: true,
-    default: 'https://cdn-icons-png.flaticon.com/512/4128/4128405.png',
-  })
-  avatar?: string;
-
-  @Prop({
-    required: true,
-  })
-  assignee: string;
-
-  @Prop()
-  email?: string;
-
-  @Prop()
-  status?: string;
-
-  @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Mentor',
     required: true,
@@ -76,15 +59,13 @@ export class AssignClassroomMentor {
   classroom: ClassroomDocument;
 }
 
-const AssignClassroomMentorSchema = SchemaFactory.createForClass(
-  AssignClassroomMentor,
+const AssignClassroomToMentorSchema = SchemaFactory.createForClass(
+  AssignClassroomToMentor,
 );
 
-AssignClassroomMentorSchema.index({
+AssignClassroomToMentorSchema.index({
   name: 'text',
-  description: 'text',
   languages: 'text',
-  assignee: 'text',
 });
 
-export { AssignClassroomMentorSchema };
+export { AssignClassroomToMentorSchema };

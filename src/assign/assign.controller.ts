@@ -16,14 +16,10 @@ import { ClassroomService } from 'src/classroom/classroom.service';
 import { MentorService } from 'src/mentor/mentor.service';
 import { StudentService } from 'src/student/student.service';
 import { AssignService } from './assign.service';
-import {
-  AssignClassroomMentorDto,
-  AssignStudentMentorDto,
-  UnassignClassroomMentorDto,
-  UnassignStudentMentorDto,
-} from './dto/assign.dto';
+import { AssignDto, UnassignDto } from './dto/assign.dto';
 import { CreateAssignStudentToMentorDto } from './dto/assign-student-to-mentor.dto';
-import { CreateAssignClassroomMentorDto } from './dto/assign-classroom-mentor.dto';
+import { CreateAssignClassroomToMentorDto } from './dto/assign-classroom-to-mentor.dto';
+import { CreateAssignMentorToClassroomDto } from './dto/assign-mentor-to-classroom.dto';
 
 @Controller('assign')
 export class AssignController {
@@ -42,7 +38,7 @@ export class AssignController {
 
   /** Assign a student to mentor
    * @param id - Mentor's id
-   * @param assignStudentMentorDto - Assign student to mentor record Dto
+   * @param assignDto - Assign student to mentor record Dto
    * @returns - A new assigned document
    */
   @Patch('mentor/assign-student/:mentorId')
@@ -50,9 +46,9 @@ export class AssignController {
   @HttpCode(200)
   async assignStudentMentor(
     @Param('mentorId') mentorId: Types.ObjectId,
-    @Body() assignStudentMentorDto: AssignStudentMentorDto,
+    @Body() assignDto: AssignDto,
   ) {
-    const assinged = await this.assignService.findAllAssignedStudentMentor(
+    const assinged = await this.assignService.findAllStudentBelongToMentor(
       {
         mentor: { $eq: mentorId },
       },
@@ -66,18 +62,18 @@ export class AssignController {
       );
     }
 
-    const studentIds = assignStudentMentorDto.studentIds;
+    const selectedIds = assignDto.selectedIds;
 
     const result = await Promise.all(
-      studentIds.map(async (studentId) => {
+      selectedIds.map(async (selectedIds) => {
         const student = await this.studentService.assignMentor(
-          studentId,
+          selectedIds,
           mentorId,
         );
 
         const mentor = await this.mentorService.assignStudent(
           mentorId,
-          studentId,
+          selectedIds,
         );
 
         if (!student || !mentor) {
@@ -108,7 +104,7 @@ export class AssignController {
 
   /** Unassign a student from mentor
    * @param mentorId - Mentor's id
-   * @param unassignStudentMentorDto - Assign student to mentor record Dto
+   * @param unassignDto - Assign student to mentor record Dto
    * @returns - A new assigned document
    */
   @Patch('mentor/unassign-student/:mentorId')
@@ -116,20 +112,20 @@ export class AssignController {
   @HttpCode(201)
   async unassignStudentMentor(
     @Param('mentorId') mentorId: Types.ObjectId,
-    @Body() unassignStudentMentorDto: UnassignStudentMentorDto,
+    @Body() unassignDto: UnassignDto,
   ) {
-    const assignedIds = unassignStudentMentorDto.assignedIds;
+    const selectedIds = unassignDto.selectedIds;
 
     const result = await Promise.all(
-      assignedIds.map(async (assignedId) => {
-        const record = await this.assignService.findAssignStudentToMentorRecord(
-          assignedId,
+      selectedIds.map(async (selectedId) => {
+        const record = await this.assignService.findStudentBelongToMentorRecord(
+          selectedId,
           mentorId,
         );
 
         if (!record) {
           throw new NotFoundException(
-            `Assinged record with id ${assignedId} was not found`,
+            `Assinged record with id ${selectedId} was not found`,
           );
         }
 
@@ -147,8 +143,8 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        return await this.assignService.delAssignStudentToMentorRecord(
-          assignedId,
+        return await this.assignService.delStudentBelongToMentorRecord(
+          selectedId,
         );
       }),
     );
@@ -169,13 +165,13 @@ export class AssignController {
   @Get('mentor/student-to-mentor')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAllAssignedStudentMentor(
+  async findAllStudentBelongToMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
-    const result = await this.assignService.findAllAssignedStudentMentor(
+    const result = await this.assignService.findAllStudentBelongToMentor(
       queryString
         ? {
             mentor: { $eq: id },
@@ -188,7 +184,7 @@ export class AssignController {
       limit,
     );
 
-    const count = await this.assignService.countStudentByCondition({
+    const count = await this.assignService.countStudentToMentorByCondition({
       mentor: { $eq: id },
     });
 
@@ -205,17 +201,17 @@ export class AssignController {
 
   /** Assign a Classroom to mentor
    * @param id - Mentor's id
-   * @param assignClassroomMentorDto - Assign Classroom to mentor record Dto
+   * @param assignDto - Assign Classroom to mentor record Dto
    * @returns - A new assigned document
    */
   @Patch('mentor/assign-classroom/:mentorId')
   @ApiOkResponse()
   @HttpCode(200)
-  async assignMentorClassroom(
+  async assignClassroomToMentor(
     @Param('mentorId') mentorId: Types.ObjectId,
-    @Body() assignClassroomMentorDto: AssignClassroomMentorDto,
+    @Body() assignDto: AssignDto,
   ) {
-    const assinged = await this.assignService.findAllAssignedMentorClassroom(
+    const assinged = await this.assignService.findAllClassroomBelongToMentor(
       {
         mentor: { $eq: mentorId },
       },
@@ -229,7 +225,7 @@ export class AssignController {
       );
     }
 
-    const classroomIds = assignClassroomMentorDto.selectedIds;
+    const classroomIds = assignDto.selectedIds;
 
     const result = await Promise.all(
       classroomIds.map(async (classroomId) => {
@@ -247,21 +243,18 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Classroom was not found`);
         }
 
-        const createAssignClassroomMentorDto: CreateAssignClassroomMentorDto = {
-          name: classroom.name,
-          description: classroom.description,
-          languages: classroom.languages,
-          cover: classroom.cover,
-          assignee: mentor.name,
-          email: mentor.email,
-          status: mentor.status,
-          avatar: mentor.avatar,
-          mentor: mentor.id,
-          classroom: classroom.id,
-        };
+        const createAssignClassroomToMentorDto: CreateAssignClassroomToMentorDto =
+          {
+            name: classroom.name,
+            description: classroom.description,
+            languages: classroom.languages,
+            cover: classroom.cover,
+            mentor: mentor.id,
+            classroom: classroom.id,
+          };
 
-        return await this.assignService.createAssignMentorClassroomRecord(
-          createAssignClassroomMentorDto,
+        return await this.assignService.createAssignClassroomToMentorRecord(
+          createAssignClassroomToMentorDto,
         );
       }),
     );
@@ -274,30 +267,29 @@ export class AssignController {
 
   /** Unassign a classroom from mentor
    * @param mentorId - Mentor's id
-   * @param unassignClassroomMentorDto - Assign classroom to mentor record Dto
+   * @param unassignDto - Assign classroom to mentor record Dto
    * @returns - A deleted assigned document
    */
   @Patch('mentor/unassign-classroom/:mentorId')
   @ApiOkResponse()
   @HttpCode(200)
-  async unassignMentorClassroom(
+  async unassignClassroomFromMentor(
     @Param('mentorId') mentorId: Types.ObjectId,
-    @Body() unassignClassroomMentorDto: UnassignClassroomMentorDto,
+    @Body() unassignDto: UnassignDto,
   ) {
-    const assignedIds = unassignClassroomMentorDto.assignedIds;
+    const selectedIds = unassignDto.selectedIds;
 
     const result = await Promise.all(
-      assignedIds.map(async (assignedId) => {
-        const record = await this.assignService.findAssignMentorClassroomRecord(
-          {
-            _id: { $eq: assignedId },
+      selectedIds.map(async (selectedId) => {
+        const record =
+          await this.assignService.findAllClassroomBelongToMentorRecord({
+            _id: { $eq: selectedId },
             mentor: { $eq: mentorId },
-          },
-        );
+          });
 
         if (!record) {
           throw new NotFoundException(
-            `Assinged record with id ${assignedId} was not found`,
+            `Assinged record with id ${selectedId} was not found`,
           );
         }
 
@@ -315,8 +307,8 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        return await this.assignService.delAssignMentorClassroomRecord(
-          assignedId,
+        return await this.assignService.delAllClassroomBelongToMentorRecord(
+          selectedId,
         );
       }),
     );
@@ -337,13 +329,13 @@ export class AssignController {
   @Get('mentor/classroom-to-mentor')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAllAssignedMentorClassroom(
+  async findAllClassroomBelongToMentor(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
-    const result = await this.assignService.findAllAssignedMentorClassroom(
+    const result = await this.assignService.findAllClassroomBelongToMentor(
       queryString
         ? {
             mentor: id,
@@ -356,7 +348,7 @@ export class AssignController {
       limit,
     );
 
-    const count = await this.assignService.countClassroomByCondition({
+    const count = await this.assignService.countClassroomToMentorByCondition({
       mentor: id,
     });
 
@@ -370,19 +362,19 @@ export class AssignController {
    * CLASSROOM ASSIGNMENT: MENTOR
    ********************************/
 
-  /** Assign a Classroom to mentor
-   * @param id - Mentor's id
-   * @param assignClassroomMentorDto - Assign Classroom to mentor record Dto
+  /** Assign a mentor to classroom
+   * @param id - Classroom's id
+   * @param assignDto - Assign Classroom to mentor record Dto
    * @returns - A new assigned document
    */
   @Patch('classroom/assign-mentor/:classroomId')
   @ApiOkResponse()
   @HttpCode(200)
-  async assignClassroomMentor(
+  async assignMentorToClassroom(
     @Param('classroomId') classroomId: Types.ObjectId,
-    @Body() assignClassroomMentorDto: AssignClassroomMentorDto,
+    @Body() assignDto: AssignDto,
   ) {
-    const assinged = await this.assignService.findAllAssignedMentorClassroom(
+    const assinged = await this.assignService.findAllMentorBelongToClassroom(
       {
         classroom: { $eq: classroomId },
       },
@@ -396,7 +388,7 @@ export class AssignController {
       );
     }
 
-    const mentorIds = assignClassroomMentorDto.selectedIds;
+    const mentorIds = assignDto.selectedIds;
 
     const result = await Promise.all(
       mentorIds.map(async (mentorId) => {
@@ -414,20 +406,19 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Classroom was not found`);
         }
 
-        const createAssignClassroomMentorDto: CreateAssignClassroomMentorDto = {
-          name: classroom.name,
-          languages: classroom.languages,
-          cover: classroom.cover,
-          email: mentor.email,
-          status: mentor.status,
-          avatar: mentor.avatar,
-          assignee: mentor.name,
-          mentor: mentor.id,
-          classroom: classroom.id,
-        };
+        const createAssignMentorToClassroomDto: CreateAssignMentorToClassroomDto =
+          {
+            name: mentor.name,
+            email: mentor.email,
+            status: mentor.status,
+            avatar: mentor.avatar,
+            languages: mentor.languages,
+            mentor: mentor.id,
+            classroom: classroom.id,
+          };
 
-        return await this.assignService.createAssignMentorClassroomRecord(
-          createAssignClassroomMentorDto,
+        return await this.assignService.createAssignMentorToClassroomRecord(
+          createAssignMentorToClassroomDto,
         );
       }),
     );
@@ -438,32 +429,31 @@ export class AssignController {
     };
   }
 
-  /** Unassign a classroom from mentor
-   * @param mentorId - Mentor's id
-   * @param unassignClassroomMentorDto - Assign classroom to mentor record Dto
+  /** Unassign a mentor from classroom
+   * @param classroomId - Classroom's id
+   * @param unassignDto - Assign classroom to mentor record Dto
    * @returns - A deleted assigned document
    */
   @Patch('classroom/unassign-mentor/:classroomId')
   @ApiOkResponse()
   @HttpCode(200)
-  async unassignClassroomMentor(
+  async unassignMentorFromClassroom(
     @Param('classroomId') classroomId: Types.ObjectId,
-    @Body() unassignClassroomMentorDto: UnassignClassroomMentorDto,
+    @Body() unassignDto: UnassignDto,
   ) {
-    const assignedIds = unassignClassroomMentorDto.assignedIds;
+    const selectedIds = unassignDto.selectedIds;
 
     const result = await Promise.all(
-      assignedIds.map(async (assignedId) => {
-        const record = await this.assignService.findAssignMentorClassroomRecord(
-          {
-            _id: { $eq: assignedId },
+      selectedIds.map(async (selectedId) => {
+        const record =
+          await this.assignService.findMentorBelongToClassroomRecord({
+            _id: { $eq: selectedId },
             classroom: { $eq: classroomId },
-          },
-        );
+          });
 
         if (!record) {
           throw new NotFoundException(
-            `Assinged record with id ${assignedId} was not found`,
+            `Mentor Id: ${selectedId} was not assinged yet.`,
           );
         }
 
@@ -481,8 +471,8 @@ export class AssignController {
           throw new NotFoundException(`Mentor or Student was not found`);
         }
 
-        return await this.assignService.delAssignMentorClassroomRecord(
-          assignedId,
+        return await this.assignService.delMentorBelongToClassroomRecord(
+          selectedId,
         );
       }),
     );
@@ -503,36 +493,35 @@ export class AssignController {
   @Get('classroom/mentor-to-classroom')
   @ApiOkResponse()
   @HttpCode(200)
-  async findAllAssignedClassroomMentor(
+  async findAllMentorBelongToClassroom(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('queryString') queryString: string,
   ) {
-    console.log({ queryString });
-
     const options = queryString
       ? {
-          $or: [
-            { assignee: { $regex: `/${queryString}/` } },
-            { email: { $regex: `/${queryString}/` } },
-          ],
           classroom: { $eq: id },
+          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
         }
       : {
           classroom: { $eq: id },
         };
 
-    const result = await this.assignService.findAllAssignedMentorClassroom(
+    const result = await this.assignService.findAllMentorBelongToClassroom(
       options,
       page,
       limit,
     );
 
+    const count = await this.assignService.countClassroomToMentorByCondition({
+      classroomId: id,
+    });
+
     return {
       status: 'success',
       data: result,
-      grossCnt: result.length,
+      grossCnt: count,
     };
   }
 }

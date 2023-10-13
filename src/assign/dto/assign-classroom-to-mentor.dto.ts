@@ -2,7 +2,7 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class BaseAssignClassroomMentorDto {
+export class BaseAssignClassroomToMentorDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'Name',
@@ -29,30 +29,6 @@ export class BaseAssignClassroomMentorDto {
 
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Assignee',
-  })
-  assignee: string;
-
-  @IsOptional()
-  @ApiProperty({
-    description: 'Mentor email',
-  })
-  email?: string;
-
-  @IsOptional()
-  @ApiProperty({
-    description: 'Mentor status',
-  })
-  status?: string;
-
-  @IsOptional()
-  @ApiProperty({
-    description: 'Mentor avatar',
-  })
-  avatar?: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
     description: 'Mentor Id',
   })
   mentor: Types.ObjectId;
@@ -64,8 +40,8 @@ export class BaseAssignClassroomMentorDto {
   classroom: Types.ObjectId;
 }
 
-export class CreateAssignClassroomMentorDto extends BaseAssignClassroomMentorDto {}
+export class CreateAssignClassroomToMentorDto extends BaseAssignClassroomToMentorDto {}
 
-export class UpdateAssignClassroomMentorDto extends PartialType(
-  BaseAssignClassroomMentorDto,
+export class UpdateAssignClassroomToMentorDto extends PartialType(
+  BaseAssignClassroomToMentorDto,
 ) {}

@@ -6,8 +6,10 @@ import { Student } from 'src/student/schemas/student.schema';
 import { Assign } from './schemas/assign.schema';
 import { AssignStudentToMentor } from './schemas/assign-student-to-mentor.schema';
 import { CreateAssignStudentToMentorDto } from './dto/assign-student-to-mentor.dto';
-import { CreateAssignClassroomMentorDto } from './dto/assign-classroom-mentor.dto';
-import { AssignClassroomMentor } from './schemas/assign-classroom-mentor.schema';
+import { AssignClassroomToMentor } from './schemas/assign-classroom-to-mentor.schema';
+import { CreateAssignClassroomToMentorDto } from './dto/assign-classroom-to-mentor.dto';
+import { CreateAssignMentorToClassroomDto } from './dto/assign-mentor-to-classroom.dto';
+import { AssignMentorToClassroom } from './schemas/assign-mentor-to-classroom.schema';
 
 @Injectable()
 export class AssignService {
@@ -17,8 +19,10 @@ export class AssignService {
     @InjectModel(Assign.name) private assignModel: Model<Assign>,
     @InjectModel(AssignStudentToMentor.name)
     private assignStudentToMentorModel: Model<AssignStudentToMentor>,
-    @InjectModel(AssignClassroomMentor.name)
-    private assignClassroomMentorModel: Model<AssignClassroomMentor>,
+    @InjectModel(AssignClassroomToMentor.name)
+    private assignClassroomToMentorModel: Model<AssignClassroomToMentor>,
+    @InjectModel(AssignMentorToClassroom.name)
+    private assignMentorToClassroomModel: Model<AssignMentorToClassroom>,
   ) {}
 
   /********************************
@@ -56,7 +60,7 @@ export class AssignService {
    * @param mentorId - Mentor's Id
    * @returns - A new assigned document
    */
-  async delAssignStudentToMentorRecord(id: Types.ObjectId) {
+  async delStudentBelongToMentorRecord(id: Types.ObjectId) {
     return await this.assignStudentToMentorModel.findByIdAndDelete(id).exec();
   }
 
@@ -64,7 +68,7 @@ export class AssignService {
    * @param id - Record's Id
    * @returns - Founed assgined records document
    */
-  async findAssignStudentToMentorRecord(
+  async findStudentBelongToMentorRecord(
     assignedId: Types.ObjectId,
     mentorId: Types.ObjectId,
   ) {
@@ -80,7 +84,7 @@ export class AssignService {
    * @param limit - Limit per page
    * @returns - List of assigned student documents that belong to mentor's id
    */
-  async findAllAssignedStudentMentor(
+  async findAllStudentBelongToMentor(
     options: object,
     page: number,
     limit: number,
@@ -98,27 +102,27 @@ export class AssignService {
    ********************************/
 
   /** Create record when assign a classrom to a mentor complete
-   * @param createAssignClassroomMentorDto - Create a assign classroom to mentor record Dto
+   * @param createAssignClassroomToMentorDto - Create a assign classroom to mentor record Dto
    * @returns - A new assigned document
    */
-  async createAssignMentorClassroomRecord(
-    createAssignClassroomMentorDto: CreateAssignClassroomMentorDto,
+  async createAssignClassroomToMentorRecord(
+    createAssignClassroomToMentorDto: CreateAssignClassroomToMentorDto,
   ) {
-    const result = await this.assignClassroomMentorModel
+    const result = await this.assignClassroomToMentorModel
       .find({
-        mentor: { $eq: createAssignClassroomMentorDto.mentor },
-        classroom: { $eq: createAssignClassroomMentorDto.classroom },
+        mentor: { $eq: createAssignClassroomToMentorDto.mentor },
+        classroom: { $eq: createAssignClassroomToMentorDto.classroom },
       })
       .exec();
 
     if (result[0]) {
       throw new BadRequestException(
-        `Classroom with id ${createAssignClassroomMentorDto.classroom} is already assigned to mentor`,
+        `Classroom with id ${createAssignClassroomToMentorDto.classroom} is already assigned to mentor`,
       );
     }
 
-    return await new this.assignClassroomMentorModel({
-      ...createAssignClassroomMentorDto,
+    return await new this.assignClassroomToMentorModel({
+      ...createAssignClassroomToMentorDto,
       assignedAt: new Date(),
     }).save();
   }
@@ -129,16 +133,16 @@ export class AssignService {
    * @param mentorId - Mentor's Id
    * @returns - A new assigned document
    */
-  async delAssignMentorClassroomRecord(id: Types.ObjectId) {
-    return await this.assignClassroomMentorModel.findByIdAndDelete(id).exec();
+  async delAllClassroomBelongToMentorRecord(id: Types.ObjectId) {
+    return await this.assignClassroomToMentorModel.findByIdAndDelete(id).exec();
   }
 
   /** Find all classrooms assgined to mentor records
    * @param id - Record's Id
    * @returns - Founed assgined record document
    */
-  async findAssignMentorClassroomRecord(options: object) {
-    return await this.assignClassroomMentorModel.findOne(options);
+  async findAllClassroomBelongToMentorRecord(options: object) {
+    return await this.assignClassroomToMentorModel.findOne(options);
   }
 
   /** Find all assigned classrooms belong to mentor
@@ -147,13 +151,12 @@ export class AssignService {
    * @param limit - Limit per page
    * @returns - List of assigned student documents that belong to mentor's id
    */
-  async findAllAssignedMentorClassroom(
+  async findAllClassroomBelongToMentor(
     options: object,
     page: number,
     limit: number,
   ) {
-    console.log({ options });
-    return await this.assignClassroomMentorModel
+    return await this.assignClassroomToMentorModel
       .find(options)
       .skip((page - 1) * limit)
       .limit(limit * 1)
@@ -162,12 +165,88 @@ export class AssignService {
   }
 
   // Getting the numbers of documents stored in database
-  async countClassroomByCondition<T>(condition: T): Promise<number> {
-    return await this.assignClassroomMentorModel.count(condition);
+  async countClassroomToMentorByCondition<T>(condition: T): Promise<number> {
+    return await this.assignClassroomToMentorModel.count(condition);
   }
 
   // Getting the numbers of documents stored in database
-  async countStudentByCondition<T>(condition: T): Promise<number> {
+  async countStudentToMentorByCondition<T>(condition: T): Promise<number> {
     return await this.assignStudentToMentorModel.count(condition);
   }
+
+  /********************************
+   *  CLASSROOM ASSIGNMENT: MENTOR
+   ********************************/
+
+  /** Create record when assign a classrom to a mentor complete
+   * @param createAssignMentorToClassroomDto - Create a assign classroom to mentor record Dto
+   * @returns - A new assigned document
+   */
+  async createAssignMentorToClassroomRecord(
+    createAssignMentorToClassroomDto: CreateAssignMentorToClassroomDto,
+  ) {
+    const result = await this.assignMentorToClassroomModel
+      .find({
+        mentor: { $eq: createAssignMentorToClassroomDto.mentor },
+        classroom: { $eq: createAssignMentorToClassroomDto.classroom },
+      })
+      .exec();
+
+    if (result[0]) {
+      throw new BadRequestException(
+        `Classroom with id ${createAssignMentorToClassroomDto.classroom} is already assigned to mentor`,
+      );
+    }
+
+    return await new this.assignMentorToClassroomModel({
+      ...createAssignMentorToClassroomDto,
+      assignedAt: new Date(),
+    }).save();
+  }
+
+  /** Delete assign record when unassign a mentor from classroom complete
+   * @param id - Assign record Id
+   * @param classroomId - Classroom's Id
+   * @param mentorId - Mentor's Id
+   * @returns - A new assigned document
+   */
+  async delMentorBelongToClassroomRecord(id: Types.ObjectId) {
+    return await this.assignMentorToClassroomModel.findByIdAndDelete(id).exec();
+  }
+
+  /** Find mentor assgined to classroom records
+   * @param id - Record's Id
+   * @returns - Founed assgined record document
+   */
+  async findMentorBelongToClassroomRecord(options: object) {
+    return await this.assignMentorToClassroomModel.findOne(options);
+  }
+
+  /** Find all assigned mentors belong to classroom
+   * @param id - classroom's Id
+   * @param page - Current Page
+   * @param limit - Limit per page
+   * @returns - List of assigned student documents that belong to mentor's id
+   */
+  async findAllMentorBelongToClassroom(
+    options: object,
+    page: number,
+    limit: number,
+  ) {
+    return await this.assignMentorToClassroomModel
+      .find(options)
+      .skip((page - 1) * limit)
+      .limit(limit * 1)
+      .sort({ assignedAt: -1 })
+      .exec();
+  }
+
+  // Getting the numbers of documents stored in database
+  async countMentorToClassroommByCondition<T>(condition: T): Promise<number> {
+    return await this.assignMentorToClassroomModel.count(condition);
+  }
+
+  /********************************
+   *  CLASSROOM ASSIGNMENT: STUDENT
+   ********************************/
 }
