@@ -14,6 +14,7 @@ import { AccessTokenGuard } from './guards/accessToken.guard';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
 import { AuthService } from './auth.service';
 import { SigninDto } from './dto/signin.dto';
+import { GetRefreshTokenDto } from './dto/getRefreshToken.dto';
 import { AuthEntity } from './entity/auth.entity';
 
 @Controller('auth')
@@ -53,11 +54,19 @@ export class AuthController {
   }
 
   /** Refreshing the token */
+  @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
-  refreshTokens(@Req() req: Request) {
-    const mentorId = req.user['sub'];
-    const refreshToken = req.user['refreshToken'];
-    return this.authService.refreshTokens(mentorId, refreshToken);
+  @Post('refresh')
+  @ApiOkResponse()
+  async refreshTokens(@Body() getRefreshToken: GetRefreshTokenDto) {
+    const tokens = await this.authService.refreshTokens(
+      getRefreshToken.userId,
+      getRefreshToken.refreshToken,
+    );
+
+    return {
+      status: 'success',
+      data: tokens,
+    };
   }
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -31,9 +32,10 @@ export class MentorController {
    * @param page - Current page
    * @param limit - Limit per page
    */
-
-  @Get('classroom-unassign')
   @Roles(Role.Admin)
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @Get('classroom-unassign')
   async findAllUnassignMentorClassroom(
     @Query('id') id: Types.ObjectId,
     @Query('page') page: number,
@@ -44,10 +46,11 @@ export class MentorController {
       page,
       limit,
     );
+
     return {
       status: 'success',
-      grossCnt: mentors.length,
       data: mentors,
+      grossCnt: mentors.length,
     };
   }
 
