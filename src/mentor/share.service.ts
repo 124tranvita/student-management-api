@@ -1,73 +1,52 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Model, Types } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
 import { MentorDocument, Mentor } from './schemas/mentor.schema';
-import { CreateMentorDto } from './dto/create-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
 
 @Injectable()
-export class MentorService {
+export class MentorShareService {
   constructor(@InjectModel(Mentor.name) private model: Model<Mentor>) {}
 
-  /** ADMIN ROLE */
-  /** Create document
-   * @param createMentorDto Create Dto
-   * @returns New created document
+  /** AUTHENTICATION */
+  /**
+   * Get user by email
+   * @param email Email
+   * @param roles Role
+   * @returns Uer found by given email
    */
-  async create(createMentorDto: CreateMentorDto): Promise<Mentor> {
-    // Query by the given email
-    const mentor = await this.model.findOne({
-      email: { $eq: createMentorDto.email },
-    });
+  async getUser(
+    email: string,
+    password: string,
+    roles = Role.Mentor,
+  ): Promise<MentorDocument> {
+    // Get document from DB
+    const doc = await this.model
+      .findOne({ email, roles })
+      .select('+password')
+      .exec();
 
-    if (mentor) {
-      // MENTOR400: Email is duplicated
-      throw new BadRequestException(`MENTOR400`);
+    if (!doc) {
+      // AUTH404: Email was not found
+      throw new NotFoundException('AUTH404');
     }
-    // Hash password
-    const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(createMentorDto.password, salt);
 
-    // Write to DB
-    return await new this.model({
-      ...createMentorDto,
-      password: hashPassword,
-      createdAt: new Date(),
-    }).save();
-  }
+    // Compare given password
+    const isPwdValid = await bcrypt.compare(password, doc.password);
 
-  /** Get all documents
-   * @param options Query options
-   * @param page Current page
-   * @param limit Limit per page
-   * @returns List of queried documents
-   */
-  async findAll(
-    options: object,
-    page: number,
-    limit: number,
-  ): Promise<Mentor[]> {
-    return await this.model.aggregate([
-      {
-        $match: options,
-      },
-      {
-        $addFields: {
-          assignedStudent: { $size: { $ifNull: ['$students', []] } },
-          assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
-        },
-      },
-      { $skip: (page - 1) * limit },
-      { $limit: limit * 1 },
-      { $sort: { createdAt: -1 } },
-      { $project: { password: 0 } },
-    ]);
+    if (!isPwdValid) {
+      // AUTH400: Password invalid
+      throw new BadRequestException(`AUTH400`);
+    }
+
+    return doc;
   }
 
   /** Get document
@@ -83,77 +62,38 @@ export class MentorService {
       throw new NotFoundException('MENTOR404');
     }
 
-    return doc;
-  }
-
-  /** Update document
-   * @param id Document's id
-   * @param updateMentorDto Update Dto
-   * @returns New updated document
-   */
-  async update(
-    id: string,
-    updateMentorDto: UpdateMentorDto,
-  ): Promise<MentorDocument> {
-    // Get and update document from DB
-    const doc = this.model
-      .findOneAndUpdate(
-        { _id: new Types.ObjectId(id) },
-        [
-          {
-            $set: { ...updateMentorDto },
-          },
-          {
-            $addFields: {
-              assignedStudent: { $size: { $ifNull: ['$students', []] } },
-              assignedClassroom: { $size: { $ifNull: ['$classrooms', []] } },
-            },
-          },
-        ],
-        {
-          new: true,
-        },
-      )
-      .exec();
-
-    if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+    if (!doc.refreshToken) {
+      // AUTH403: Access denied
+      throw new ForbiddenException('AUTH403.');
     }
 
     return doc;
   }
 
-  /** Update mentor/admin refresh token
-   * @param id - Mentor/admin Id
-   * @param updateMentorDto - Mentor/admin update Dto
-   * @returns - New updated mentor/adim document
+  /** Update user refresh token
+   * @param id Usern Id
+   * @param updateMentorDto Update Dto
+   * @returns Updated document
    */
   async updateRefreshToken(
     id: Types.ObjectId,
     updateMentorDto: UpdateMentorDto,
   ): Promise<MentorDocument> {
-    return await this.model
+    const doc = await this.model
       .findByIdAndUpdate(id, updateMentorDto, {
         new: true,
       })
       .exec();
-  }
-
-  /** Delete document
-   * @param id - Document's Id
-   * @returns - The deleted document
-   */
-  async delete(id: string): Promise<MentorDocument> {
-    const doc = this.model.findByIdAndDelete(id).exec();
 
     if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+      // AUTH404: Email was not found
+      throw new NotFoundException('AUTH404');
     }
 
     return doc;
   }
+
+  /** ASSIGN MANAGEMENT */
 
   /** Get all classrooms that assigned to mentor
    * @param id - Mentor's id
@@ -334,11 +274,6 @@ export class MentorService {
       { $sort: { name: -1 } },
       { $project: { password: 0 } },
     ]);
-  }
-
-  /** Get mentor by email */
-  async findByEmail(email: string): Promise<MentorDocument> {
-    return await this.model.findOne({ email }).select('+password').exec();
   }
 
   // Getting the numbers of documents stored in database
