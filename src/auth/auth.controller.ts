@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AccessTokenGuard } from './guards/accessToken.guard';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
@@ -17,12 +17,13 @@ import { SigninDto } from './dto/signin.dto';
 import { GetRefreshTokenDto } from './dto/getRefreshToken.dto';
 import { AuthEntity } from './entity/auth.entity';
 
+@ApiTags('authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Post('signin-admin')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: AuthEntity })
   async signinAdmin(@Body() signinDto: SigninDto) {
     const tokens = await this.authService.signinAdmin(
@@ -37,27 +38,18 @@ export class AuthController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Get('profile')
-  getProfile(@Req() req: Request) {
-    const user = req.user;
-
-    return {
-      status: 'success',
-      data: user,
-    };
-  }
-
-  @UseGuards(AccessTokenGuard)
   @Get('signout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
   logout(@Req() req: Request) {
     this.authService.logout(req.user['sub']);
   }
 
   /** Refreshing the token */
-  @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   @ApiOkResponse()
+  @HttpCode(HttpStatus.OK)
   async refreshTokens(@Body() getRefreshToken: GetRefreshTokenDto) {
     const tokens = await this.authService.refreshTokens(
       getRefreshToken.userId,

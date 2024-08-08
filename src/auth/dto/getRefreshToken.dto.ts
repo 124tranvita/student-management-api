@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GetRefreshTokenDto {
@@ -8,7 +8,7 @@ export class GetRefreshTokenDto {
     description: 'User Id',
     type: String,
   })
-  userId: Types.ObjectId;
+  userId: string;
 
   @IsNotEmpty()
   @IsString()

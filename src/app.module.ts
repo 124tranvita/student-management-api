@@ -16,21 +16,19 @@ import { EventModule } from './event/event.module';
     ConfigModule.forRoot(),
     MongooseModule.forRoot(
       process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD),
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
     ),
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 10,
-    }),
-    ClassroomModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60,
+        limit: 10,
+      },
+    ]),
+    // ClassroomModule,
     MentorModule,
-    StudentModule,
+    // StudentModule,
     AuthModule,
-    AssignModule,
-    EventModule,
+    // AssignModule,
+    // EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],

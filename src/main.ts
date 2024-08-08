@@ -39,15 +39,15 @@ async function bootstrap() {
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
-  const config = new DocumentBuilder()
-    .setTitle('Students management')
-    .setDescription('The students management API')
-    .setVersion('0.0.1')
+  const options = new DocumentBuilder()
+    .setTitle('API Documentation')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth() // This adds the Authorization header to Swagger
     .addServer('https://4100.nezumi.asia/')
-    .addServer('https://fine-deer-attire.cyclic.app/')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT || 4100);
