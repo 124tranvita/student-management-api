@@ -47,14 +47,14 @@ export class AuthService {
   }
 
   /** Generate Access token and Refresh token
-   * @param mentorId User id
-   * @param email - User email
+   * @param id User's id
+   * @param email - User's email
    */
-  async getTokens(mentorId: Types.ObjectId, email: string, roles: Role) {
+  async getTokens(id: Types.ObjectId, email: string, roles: Role) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: mentorId,
+          sub: id,
           email,
           roles,
         },
@@ -65,7 +65,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: mentorId,
+          sub: id,
           email,
           roles,
         },
@@ -83,12 +83,12 @@ export class AuthService {
   }
 
   /** Refreshing the Tokens
-   * @param mentorId - mentor's Id
-   * @param refreshToken - mentor's refresh token
+   * @param id User's Id
+   * @param refreshToken User's refresh token
    */
-  async refreshTokens(mentorId: string, refreshToken: string) {
-    // Step 1: Fetch a mentor with the given mentorId
-    const mentor = await this.mentorShareService.findOne(mentorId);
+  async refreshTokens(id: Types.ObjectId, refreshToken: string) {
+    // Step 1: Fetch a mentor with the given id
+    const mentor = await this.mentorShareService.findOne(id);
 
     // If no mentor is found or mentor's token not found, throw an error
     if (!mentor || !mentor.refreshToken) {
@@ -119,8 +119,12 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(mentorId: Types.ObjectId) {
-    return this.mentorShareService.updateRefreshToken(mentorId, {
+  /**
+   * Clear `refreshToken` on logout
+   *  @param id User's Id
+   */
+  async logout(id: Types.ObjectId) {
+    return this.mentorShareService.updateRefreshToken(id, {
       refreshToken: null,
     });
   }

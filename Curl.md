@@ -5,7 +5,7 @@ curl -X 'POST' \
  -H 'accept: application/json' \
  -H 'Content-Type: application/json' \
  -d '{
-"email": "user@example.com",
+"email": "user@mail.com",
 "password": "12345678"
 }' | jq
 

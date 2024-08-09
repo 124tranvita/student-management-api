@@ -34,16 +34,16 @@ export class MentorShareService {
       .exec();
 
     if (!doc) {
-      // AUTH404: Email was not found
-      throw new NotFoundException('AUTH404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     // Compare given password
     const isPwdValid = await bcrypt.compare(password, doc.password);
 
     if (!isPwdValid) {
-      // AUTH400: Password invalid
-      throw new BadRequestException(`AUTH400`);
+      // MENTOR003: Incorrect password
+      throw new BadRequestException('MENTOR003: Incorrect password');
     }
 
     return doc;
@@ -53,18 +53,18 @@ export class MentorShareService {
    * @param id - Document's id
    * @returns - Queried document
    */
-  async findOne(id: string): Promise<MentorDocument> {
+  async findOne(id: Types.ObjectId): Promise<MentorDocument> {
     // Get document from DB
     const doc = await this.model.findById(id).exec();
 
     if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     if (!doc.refreshToken) {
-      // AUTH403: Access denied
-      throw new ForbiddenException('AUTH403.');
+      // MENTOR004: Permission denied
+      throw new ForbiddenException('MENTOR004: Permission denied');
     }
 
     return doc;
@@ -86,15 +86,14 @@ export class MentorShareService {
       .exec();
 
     if (!doc) {
-      // AUTH404: Email was not found
-      throw new NotFoundException('AUTH404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     return doc;
   }
 
   /** ASSIGN MANAGEMENT */
-
   /** Get all classrooms that assigned to mentor
    * @param id - Mentor's id
    * @param page - Current page
@@ -120,13 +119,13 @@ export class MentorShareService {
       .exec();
   }
 
-  /** Get all students that assigned to mentor
-   * @param id - Mentor's id
-   * @param page - Current page
-   * @param limit - Limit per page
+  /** Get all students belong to mentor
+   * @param id Mentor's id
+   * @param page Current page
+   * @param limit Limit per page
    * @returns - Mentor document with assigned students list
    */
-  async findAssignedStudent(
+  async findAllStudents(
     id: Types.ObjectId,
     page: number,
     limit: number,
@@ -134,7 +133,7 @@ export class MentorShareService {
     return await this.model
       .findById(id)
       .populate({
-        path: 'assignedStudents',
+        path: 'students',
         options: {
           sort: { name: 1 },
           skip: limit * (page || 1) - limit,

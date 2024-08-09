@@ -28,7 +28,7 @@ export class MentorService {
 
     if (mentor) {
       // MENTOR400: Email is duplicated
-      throw new BadRequestException(`MENTOR400`);
+      throw new BadRequestException(`MENTOR001: Email is duplicated`);
     }
     // Hash password
     const salt = await bcrypt.genSalt();
@@ -79,8 +79,8 @@ export class MentorService {
     const doc = await this.model.findById(id).exec();
 
     if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     return doc;
@@ -117,27 +117,11 @@ export class MentorService {
       .exec();
 
     if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     return doc;
-  }
-
-  /** Update mentor/admin refresh token
-   * @param id - Mentor/admin Id
-   * @param updateMentorDto - Mentor/admin update Dto
-   * @returns - New updated mentor/adim document
-   */
-  async updateRefreshToken(
-    id: Types.ObjectId,
-    updateMentorDto: UpdateMentorDto,
-  ): Promise<MentorDocument> {
-    return await this.model
-      .findByIdAndUpdate(id, updateMentorDto, {
-        new: true,
-      })
-      .exec();
   }
 
   /** Delete document
@@ -148,8 +132,8 @@ export class MentorService {
     const doc = this.model.findByIdAndDelete(id).exec();
 
     if (!doc) {
-      // MENTOR404: Mentor is not found
-      throw new NotFoundException('MENTOR404');
+      // MENTOR002: User was not found
+      throw new NotFoundException('MENTOR002: User was not found');
     }
 
     return doc;

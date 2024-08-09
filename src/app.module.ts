@@ -27,7 +27,7 @@ import { EventModule } from './event/event.module';
     MentorModule,
     // StudentModule,
     AuthModule,
-    // AssignModule,
+    AssignModule,
     // EventModule,
   ],
   controllers: [AppController],
