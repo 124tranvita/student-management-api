@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Classroom, ClassroomDocument } from './schemas/classroom.schema';
@@ -9,7 +9,6 @@ import { UpdateClassroomDto } from './dto/update-classroom.dto';
 export class ClassroomService {
   constructor(@InjectModel(Classroom.name) private model: Model<Classroom>) {}
 
-  /** ADMIN ROLE */
   /** Create classroom
    * @param createClassroomDto - Create class  Dto
    * @returns - New classroom document
@@ -48,41 +47,20 @@ export class ClassroomService {
     ]);
   }
 
-  /** Get classrooms base on search query string
-   * @param queryString - Search keyword
-   * @param page - Current page
-   * @param limit - Limit per page
-   * @returns - List of all classroom documents
-   */
-  async search(
-    queryString: string,
-    page: number,
-    limit: number,
-  ): Promise<Classroom[]> {
-    return await this.model.aggregate([
-      {
-        $match: {
-          $text: { $search: `\"${queryString}\"` }, // Searching with Full Phrases
-        },
-      },
-      {
-        $addFields: {
-          assignedStudent: { $size: { $ifNull: ['$students', []] } },
-          assignedMentor: { $size: { $ifNull: ['$mentors', []] } },
-        },
-      },
-      { $skip: (page - 1) * limit },
-      { $limit: limit * 1 },
-      { $sort: { createdAt: -1 } },
-    ]);
-  }
-
   /** Get classroom
    * @param id - Classroom's Id
    * @returns - Founded classroom document by Id
    */
-  async findOne(id: Types.ObjectId): Promise<Classroom> {
-    return await this.model.findById(id).exec();
+  async findOne(id: string): Promise<ClassroomDocument> {
+    // Get doc from DB
+    const doc = await this.model.findById(id).exec();
+
+    if (!doc) {
+      // MENTOR002: User was not found
+      throw new NotFoundException('CLASSR002: Classroom was not found');
+    }
+
+    return doc;
   }
 
   /** Update classroom
@@ -91,15 +69,15 @@ export class ClassroomService {
    * @returns - Updated classroom
    */
   async update(
-    id: Types.ObjectId,
+    id: string,
     updateClassroomDto: UpdateClassroomDto,
-  ): Promise<Classroom> {
-    return await this.model
+  ): Promise<ClassroomDocument> {
+    const doc = await this.model
       .findByIdAndUpdate(
-        id,
+        { _id: new Types.ObjectId(id) },
         [
           {
-            $set: updateClassroomDto,
+            $set: { ...updateClassroomDto },
           },
           {
             $addFields: {
@@ -112,14 +90,28 @@ export class ClassroomService {
         { new: true },
       )
       .exec();
+
+    if (!doc) {
+      // MENTOR002: User was not found
+      throw new NotFoundException('CLASSR002: Classroom was not found');
+    }
+
+    return doc;
   }
 
   /** Delete classroom
    * @param id - Classroom's Id
    * @returns - Deleted classroom document
    */
-  async delete(id: Types.ObjectId): Promise<Classroom> {
-    return await this.model.findByIdAndDelete(id).exec();
+  async delete(id: string): Promise<ClassroomDocument> {
+    const doc = await this.model.findByIdAndDelete(id).exec();
+
+    if (!doc) {
+      // MENTOR002: User was not found
+      throw new NotFoundException('CLASSR002: Classroom was not found');
+    }
+
+    return doc;
   }
 
   /*************************

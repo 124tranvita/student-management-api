@@ -87,7 +87,7 @@ export class ManageMentorService {
     });
 
     if (existingStudents.length !== studentIdsObjectId.length) {
-      throw new NotFoundException('One or more students not found');
+      throw new NotFoundException('ASSIGN001: One or more students not found');
     }
 
     return await this.mentorModel.findByIdAndUpdate(

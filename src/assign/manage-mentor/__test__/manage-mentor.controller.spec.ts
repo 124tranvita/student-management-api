@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ManageMentorController } from './manage-mentor.controller';
+import { ManageMentorController } from '../manage-mentor.controller';
 
 describe('ManageMentorController', () => {
   let controller: ManageMentorController;

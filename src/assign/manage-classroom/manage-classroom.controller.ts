@@ -1,11 +1,9 @@
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -15,17 +13,17 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { ManageMentorService } from './manage-mentor.service';
+import { ManageClassroomService } from './manage-classroom.service';
 import { Types } from 'mongoose';
-import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/auth/roles/role.enum';
+import { Roles } from 'src/decorators/roles.decorator';
 
-@ApiTags('assign/mentor')
-@Controller('assign/mentor/:id')
-export class ManageMentorController {
-  constructor(private readonly service: ManageMentorService) {}
+@ApiTags('assign/classroom')
+@Controller('assign/classroom/:id')
+export class ManageClassroomController {
+  constructor(private readonly service: ManageClassroomService) {}
 
-  @Get('classroom')
+  @Get('mentor')
   @Roles(Role.Admin)
   @ApiOkResponse()
   @ApiBearerAuth()
@@ -33,7 +31,7 @@ export class ManageMentorController {
   @ApiParam({
     name: 'id',
     required: false,
-    description: 'ID of the mentor',
+    description: 'ID of the classroom',
     type: String,
   })
   @ApiQuery({
@@ -54,7 +52,7 @@ export class ManageMentorController {
     description: 'Search query string',
     type: String,
   })
-  async findAllClassrooms(
+  async findAllMentors(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -62,7 +60,7 @@ export class ManageMentorController {
   ) {
     // Declare `options` object
     const options: any = {
-      mentors: { $in: [new Types.ObjectId(id)] },
+      classrooms: { $in: [new Types.ObjectId(id)] },
     };
 
     // Update `options` when `queryString` is existing
@@ -70,7 +68,7 @@ export class ManageMentorController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllClassrooms(
+    const result = await this.service.findAllMentors(
       new Types.ObjectId(id),
       page,
       limit,
@@ -91,7 +89,7 @@ export class ManageMentorController {
   @ApiParam({
     name: 'id',
     required: false,
-    description: 'ID of the mentor',
+    description: 'ID of the classroom',
     type: String,
   })
   @ApiQuery({
@@ -120,7 +118,7 @@ export class ManageMentorController {
   ) {
     // Declare `options` object
     const options: any = {
-      mentors: { $in: [new Types.ObjectId(id)] },
+      classrooms: { $in: [new Types.ObjectId(id)] },
     };
 
     // Update `options` when `queryString` is existing
@@ -128,7 +126,7 @@ export class ManageMentorController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllStudent(
+    const result = await this.service.findAllStudents(
       new Types.ObjectId(id),
       page,
       limit,
@@ -138,49 +136,6 @@ export class ManageMentorController {
       status: 'success',
       data: result,
       grossCnt: result.length,
-    };
-  }
-
-  @Post('classroom')
-  @Roles(Role.Admin)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({
-    name: 'id',
-    required: false,
-    description: 'ID of the mentor',
-    type: String,
-  })
-  async assignClassroom(
-    @Param('id') id: string,
-    @Body() classroomIds: string[],
-  ) {
-    const result = await this.service.assignClassroom(id, classroomIds);
-
-    return {
-      status: 'success',
-      data: result,
-    };
-  }
-
-  @Post('student')
-  @Roles(Role.Admin)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({
-    name: 'id',
-    required: false,
-    description: 'ID of the mentor',
-    type: String,
-  })
-  async assignStudent(@Param('id') id: string, @Body() studentIds: string[]) {
-    const result = await this.service.assignStudent(id, studentIds);
-
-    return {
-      status: 'success',
-      data: result,
     };
   }
 }
