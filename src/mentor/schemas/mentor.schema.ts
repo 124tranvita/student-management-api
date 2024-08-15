@@ -72,7 +72,7 @@ export class Mentor {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' })
   @Type(() => Classroom)
-  classrooms: Classroom[];
+  classroom: Classroom[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
   @Type(() => Student)
@@ -82,31 +82,6 @@ export class Mentor {
 const MentorSchema = SchemaFactory.createForClass(Mentor);
 
 MentorSchema.index({ email: 'text', name: 'text' });
-
-MentorSchema.virtual('assignedClasses', {
-  ref: 'Classroom',
-  foreignField: 'mentor',
-  localField: '_id',
-});
-
-MentorSchema.virtual('classroomCnt', {
-  ref: 'Classroom',
-  foreignField: 'mentor',
-  localField: '_id',
-  count: true,
-});
-
-MentorSchema.virtual('assignedStudents', {
-  ref: 'Student',
-  foreignField: 'mentor',
-  localField: '_id',
-});
-
-MentorSchema.virtual('events', {
-  ref: 'Event',
-  foreignField: 'mentor',
-  localField: '_id',
-});
 
 /** STATIC FUNCTIONS */
 MentorSchema.statics.countStudent = async function (id) {

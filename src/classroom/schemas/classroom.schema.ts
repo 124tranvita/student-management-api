@@ -40,7 +40,7 @@ export class Classroom {
   })
   cover: string;
 
-  // Class belong one mentor
+  // Classroom can have more than one mentors
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Mentor',
@@ -60,38 +60,6 @@ export class Classroom {
 const ClassroomSchema = SchemaFactory.createForClass(Classroom);
 
 ClassroomSchema.index({ name: 'text', description: 'text' });
-
-ClassroomSchema.virtual('assignedMentors', {
-  ref: 'Mentor',
-  foreignField: 'classes',
-  localField: '_id',
-});
-
-ClassroomSchema.virtual('mentorCnt', {
-  ref: 'Mentor',
-  foreignField: 'classes',
-  localField: '_id',
-  count: true,
-});
-
-ClassroomSchema.virtual('assignedStudents', {
-  ref: 'Student',
-  foreignField: 'classes',
-  localField: '_id',
-});
-
-ClassroomSchema.virtual('studentCnt', {
-  ref: 'Student',
-  foreignField: 'classes',
-  localField: '_id',
-  count: true,
-});
-
-ClassroomSchema.virtual('assigned', {
-  ref: 'Assign',
-  foreignField: 'classroom',
-  localField: '_id',
-});
 
 /** STATIC FUNCTIONS */
 ClassroomSchema.statics.countStudent = async function (id) {

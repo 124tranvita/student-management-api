@@ -1,11 +1,9 @@
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -54,7 +52,7 @@ export class ManageMentorController {
     description: 'Search query string',
     type: String,
   })
-  async findAllClassrooms(
+  async findAllAddedClassrooms(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -70,7 +68,7 @@ export class ManageMentorController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllClassrooms(
+    const result = await this.service.findAllAddedClassrooms(
       new Types.ObjectId(id),
       page,
       limit,
@@ -112,7 +110,7 @@ export class ManageMentorController {
     description: 'Search query string',
     type: String,
   })
-  async findAllStudents(
+  async findAllAddedStudents(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -128,7 +126,7 @@ export class ManageMentorController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllStudent(
+    const result = await this.service.findAllAddedStudents(
       new Types.ObjectId(id),
       page,
       limit,
@@ -138,49 +136,6 @@ export class ManageMentorController {
       status: 'success',
       data: result,
       grossCnt: result.length,
-    };
-  }
-
-  @Post('classroom')
-  @Roles(Role.Admin)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({
-    name: 'id',
-    required: false,
-    description: 'ID of the mentor',
-    type: String,
-  })
-  async assignClassroom(
-    @Param('id') id: string,
-    @Body() classroomIds: string[],
-  ) {
-    const result = await this.service.assignClassroom(id, classroomIds);
-
-    return {
-      status: 'success',
-      data: result,
-    };
-  }
-
-  @Post('student')
-  @Roles(Role.Admin)
-  @ApiOkResponse()
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiParam({
-    name: 'id',
-    required: false,
-    description: 'ID of the mentor',
-    type: String,
-  })
-  async assignStudent(@Param('id') id: string, @Body() studentIds: string[]) {
-    const result = await this.service.assignStudent(id, studentIds);
-
-    return {
-      status: 'success',
-      data: result,
     };
   }
 }

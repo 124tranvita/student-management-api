@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
@@ -52,7 +54,7 @@ export class ManageClassroomController {
     description: 'Search query string',
     type: String,
   })
-  async findAllMentors(
+  async findAllAddedMentors(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -68,7 +70,7 @@ export class ManageClassroomController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllMentors(
+    const result = await this.service.findAllAddedMentors(
       new Types.ObjectId(id),
       page,
       limit,
@@ -78,6 +80,29 @@ export class ManageClassroomController {
       status: 'success',
       data: result,
       grossCnt: result.length,
+    };
+  }
+
+  @Post('mentor')
+  @Roles(Role.Admin)
+  @ApiOkResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({
+    name: 'id',
+    required: false,
+    description: 'ID of the classroom',
+    type: String,
+  })
+  async addMentorsToClassroom(
+    @Param('id') id: string,
+    @Body() mentorIds: string[],
+  ) {
+    const result = await this.service.addMentorsToClassroom(id, mentorIds);
+
+    return {
+      status: 'success',
+      data: result,
     };
   }
 
@@ -110,7 +135,7 @@ export class ManageClassroomController {
     description: 'Search query string',
     type: String,
   })
-  async findAllStudents(
+  async findAllAddedStudents(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
@@ -126,7 +151,7 @@ export class ManageClassroomController {
       options.$text = { $search: `\"${queryString}\"` };
     }
 
-    const result = await this.service.findAllStudents(
+    const result = await this.service.findAllAddedStudents(
       new Types.ObjectId(id),
       page,
       limit,
@@ -136,6 +161,29 @@ export class ManageClassroomController {
       status: 'success',
       data: result,
       grossCnt: result.length,
+    };
+  }
+
+  @Post('student')
+  @Roles(Role.Admin)
+  @ApiOkResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({
+    name: 'id',
+    required: false,
+    description: 'ID of the classroom',
+    type: String,
+  })
+  async addStudentsToClassroom(
+    @Param('id') id: string,
+    @Body() studentIds: string[],
+  ) {
+    const result = await this.service.addStudentsToClassroom(id, studentIds);
+
+    return {
+      status: 'success',
+      data: result,
     };
   }
 }

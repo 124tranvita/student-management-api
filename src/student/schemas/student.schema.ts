@@ -74,12 +74,12 @@ export class Student {
     ref: 'Classroom',
   })
   @Type(() => Classroom)
-  classes: Classroom[];
+  classrooms: Classroom[];
 
   // Student belong only one mentor
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' })
   @Type(() => Mentor)
-  mentor: Mentor;
+  mentors: Mentor[];
 }
 
 const StudentSchema = SchemaFactory.createForClass(Student);
