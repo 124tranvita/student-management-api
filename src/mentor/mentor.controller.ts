@@ -40,8 +40,8 @@ export class MentorController {
    */
   @Post()
   @Roles(Role.Admin)
-  @ApiTags('create')
   @ApiOkResponse()
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createMentorDto: CreateMentorDto) {
     const mentor = await this.service.create(createMentorDto);

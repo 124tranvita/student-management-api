@@ -8,8 +8,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Types } from 'mongoose';
 import { AccessTokenGuard } from './guards/accessToken.guard';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
 import { AuthService } from './auth.service';
@@ -39,8 +40,9 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Get('signout')
-  @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
   logout(@Req() req: Request) {
     this.authService.logout(req.user['sub']);
   }
@@ -49,10 +51,11 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   @ApiOkResponse()
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   async refreshTokens(@Body() getRefreshToken: GetRefreshTokenDto) {
     const tokens = await this.authService.refreshTokens(
-      getRefreshToken.userId,
+      new Types.ObjectId(getRefreshToken.userId),
       getRefreshToken.refreshToken,
     );
 

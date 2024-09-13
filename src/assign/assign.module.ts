@@ -20,6 +20,11 @@ import {
   AssignClassroomMentor,
   AssignClassroomMentorSchema,
 } from './schemas/assign-classroom-mentor.schema';
+import { ManageMentorService } from './manage-mentor/manage-mentor.service';
+import { ManageMentorController } from './manage-mentor/manage-mentor.controller';
+import { MentorService } from 'src/mentor/mentor.service';
+import { ManageClassroomService } from './manage-classroom/manage-classroom.service';
+import { ManageClassroomController } from './manage-classroom/manage-classroom.controller';
 
 @Module({
   imports: [
@@ -39,7 +44,12 @@ import {
     MentorModule,
     StudentModule,
   ],
-  providers: [AssignService],
-  controllers: [AssignController],
+  providers: [
+    AssignService,
+    ManageMentorService,
+    MentorService,
+    ManageClassroomService,
+  ],
+  controllers: [ManageMentorController, ManageClassroomController],
 })
 export class AssignModule {}

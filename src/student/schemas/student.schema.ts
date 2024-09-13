@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Mentor } from 'src/mentor/schemas/mentor.schema';
+import { AssignInfo } from './assignInfo.schema';
 
 export type StudentDocument = HydratedDocument<Student>;
 
@@ -68,34 +69,27 @@ export class Student {
   })
   createdAt: Date;
 
-  // Student belong more than one classroom
+  // Student - Classroom (many - many)
   @Prop({
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Classroom',
+    type: [AssignInfo],
   })
-  @Type(() => Classroom)
-  classes: Classroom[];
+  classrooms: [
+    {
+      mentorId: Mentor;
+      classroomId: Classroom;
+      classroomName: string;
+      addedAt: Date;
+    },
+  ];
 
-  // Student belong only one mentor
+  // Student - Mentor (many - many)
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' })
   @Type(() => Mentor)
-  mentor: Mentor;
+  mentors: Mentor[];
 }
 
 const StudentSchema = SchemaFactory.createForClass(Student);
 
 StudentSchema.index({ studentId: 'text', name: 'text' });
-
-StudentSchema.virtual('classroom', {
-  ref: 'Classroom',
-  foreignField: 'students',
-  localField: '_id',
-});
-
-StudentSchema.virtual('mentorInfo', {
-  ref: 'Mentor',
-  foreignField: 'students',
-  localField: '_id',
-});
 
 export { StudentSchema };

@@ -4,11 +4,10 @@ import { MentorService } from './mentor.service';
 import { MentorShareService } from './share.service';
 import { MentorController } from './mentor.controller';
 import { Mentor, MentorSchema } from './schemas/mentor.schema';
-import { ManagementController } from './management.controller';
 
 @Module({
   providers: [MentorService, MentorShareService],
-  controllers: [MentorController, ManagementController],
+  controllers: [MentorController],
   imports: [
     MongooseModule.forFeature([{ name: Mentor.name, schema: MentorSchema }]),
   ],

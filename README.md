@@ -71,3 +71,6 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+https://chatgpt.com/share/715696ae-66f7-47e8-8fb5-5289f94a5f89
+https://chatgpt.com/share/51a3268d-31e7-42ca-9b57-65fbd90d5674

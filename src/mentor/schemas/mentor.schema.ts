@@ -4,6 +4,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
 import { Classroom } from 'src/classroom/schemas/classroom.schema';
 import { Student } from 'src/student/schemas/student.schema';
+import { ClassroomInfo } from './classroomInfo.schema';
 
 export type MentorDocument = HydratedDocument<Mentor>;
 
@@ -70,9 +71,14 @@ export class Mentor {
   @Prop({ required: true, default: 'mentor' })
   roles: Role;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Classroom' })
-  @Type(() => Classroom)
-  classrooms: Classroom[];
+  @Prop({ type: ClassroomInfo })
+  classrooms: [
+    {
+      classroomId: Classroom;
+      classroomName: string;
+      addedAt: Date;
+    },
+  ];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Student' })
   @Type(() => Student)
@@ -82,31 +88,6 @@ export class Mentor {
 const MentorSchema = SchemaFactory.createForClass(Mentor);
 
 MentorSchema.index({ email: 'text', name: 'text' });
-
-MentorSchema.virtual('assignedClasses', {
-  ref: 'Classroom',
-  foreignField: 'mentor',
-  localField: '_id',
-});
-
-MentorSchema.virtual('classroomCnt', {
-  ref: 'Classroom',
-  foreignField: 'mentor',
-  localField: '_id',
-  count: true,
-});
-
-MentorSchema.virtual('assignedStudents', {
-  ref: 'Student',
-  foreignField: 'mentor',
-  localField: '_id',
-});
-
-MentorSchema.virtual('events', {
-  ref: 'Event',
-  foreignField: 'mentor',
-  localField: '_id',
-});
 
 /** STATIC FUNCTIONS */
 MentorSchema.statics.countStudent = async function (id) {
