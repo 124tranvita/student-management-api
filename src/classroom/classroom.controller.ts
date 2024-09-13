@@ -79,8 +79,8 @@ export class ClassroomController {
     type: String,
   })
   async findAll(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
     @Query('queryString') queryString: string,
   ) {
     // Declare `options` object

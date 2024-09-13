@@ -126,7 +126,15 @@ export class ManageClassroomService {
       // Step 5: Update Mentors
       await this.mentorModel.updateMany(
         { _id: { $in: mentorIdsObjectId } },
-        { $addToSet: { classrooms: new Types.ObjectId(id) } },
+        {
+          $addToSet: {
+            classrooms: {
+              classroomId: new Types.ObjectId(id),
+              classroomName: updatedClassroom.name,
+              addedAt: new Date(),
+            },
+          },
+        },
         { session },
       );
 
@@ -137,6 +145,7 @@ export class ManageClassroomService {
     } catch (error) {
       // If any error occurs, abort the transaction
       await session.abortTransaction();
+      console.log({ error });
       throw error; // Re-throw the error to handle it in the calling function
     } finally {
       // Final phase: Always run this block, regardless of success or failure
@@ -151,13 +160,15 @@ export class ManageClassroomService {
 
   // #region Assign student
   /**
-   * Assign student
-   * @param id Classroom's id
-   * @param studentIds List of student's id
+   * Assign student to classroom
+   * @param id Classroom ID
+   * @param mentorId Mentor ID
+   * @param studentIds Student IDs
    * @returns
    */
   async addStudentsToClassroom(
     id: string,
+    mentorId: string,
     studentIds: string[],
   ): Promise<ClassroomDocument> {
     // Start a session
@@ -175,7 +186,7 @@ export class ManageClassroomService {
       const existingStudents = await this.studentModel
         .find({
           _id: { $in: studentIdsObjectId },
-          classrooms: { $nin: [new Types.ObjectId(id)] }, // Ensure the classroom ID is not in the classrooms array
+          'classrooms.classroomId': { $nin: [new Types.ObjectId(id)] }, // Ensure the classroom ID is not in the classrooms array
         })
         .session(session);
 
@@ -188,12 +199,19 @@ export class ManageClassroomService {
       // Step 2: Validate classroom
       const classroom = await this.classroomModel
         .findById(id)
-        .select('students')
+        .select('students mentors')
         .session(session);
 
       if (!classroom) {
         // CLASSR002: Classroom was not found
         throw new NotFoundException('CLASSR002: Classroom was not found');
+      }
+
+      if (!classroom.mentors || classroom.mentors.length === 0) {
+        // ASSGSD001: Classroom has no assigned mentor
+        throw new BadRequestException(
+          'ASSGSD001: Classroom has no assigned mentor',
+        );
       }
 
       // Step 3: Calculate the number of students if we add the new ones
@@ -217,7 +235,16 @@ export class ManageClassroomService {
       // Step 5: Update Students
       await this.studentModel.updateMany(
         { _id: { $in: studentIdsObjectId } },
-        { $addToSet: { classrooms: new Types.ObjectId(id) } },
+        {
+          $addToSet: {
+            classrooms: {
+              mentorId: new Types.ObjectId(mentorId),
+              classroomId: new Types.ObjectId(id),
+              classroomName: updatedClassroom.name,
+              addedAt: new Date(),
+            },
+          },
+        },
         { session },
       );
 
@@ -228,6 +255,7 @@ export class ManageClassroomService {
     } catch (error) {
       // If any error occurs, abort the transaction
       await session.abortTransaction();
+      console.log({ error });
       throw error; // Re-throw the error to handle it in the calling function
     } finally {
       // Final phase: Always run this block, regardless of success or failure

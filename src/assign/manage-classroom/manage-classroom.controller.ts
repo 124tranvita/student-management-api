@@ -19,6 +19,7 @@ import { ManageClassroomService } from './manage-classroom.service';
 import { Types } from 'mongoose';
 import { Role } from 'src/auth/roles/role.enum';
 import { Roles } from 'src/decorators/roles.decorator';
+import { AddStudentDto } from './dto/add-student.dto';
 
 @ApiTags('assign/classroom')
 @Controller('assign/classroom/:id')
@@ -177,9 +178,13 @@ export class ManageClassroomController {
   })
   async addStudentsToClassroom(
     @Param('id') id: string,
-    @Body() studentIds: string[],
+    @Body() addStudentDto: AddStudentDto,
   ) {
-    const result = await this.service.addStudentsToClassroom(id, studentIds);
+    const result = await this.service.addStudentsToClassroom(
+      id,
+      addStudentDto.mentorId,
+      addStudentDto.studentIds,
+    );
 
     return {
       status: 'success',
